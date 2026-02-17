@@ -6,11 +6,10 @@ import { createClient } from "@/lib/supabase/client";
 import {
   Package,
   Sparkle,
-  CurrencyDollar,
   ArrowsClockwise,
   X,
-  ListBullets,
-  ChatCircle,
+  ListDashes,
+  Chats,
 } from "@phosphor-icons/react/dist/ssr";
 import { BOX_PRICE, RARITY_COLORS, type RarityTier } from "@/lib/types/database";
 import Navbar from "@/components/Navbar";
@@ -211,32 +210,6 @@ export default function BoxOpeningPage() {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 mt-20">
-        {/* Top Bar with Balance and Quick Actions */}
-        <div className="flex items-center justify-between mb-8">
-          <button
-            onClick={() => router.push("/")}
-            className="text-white hover:text-orange-200 transition-colors font-medium flex items-center gap-2"
-          >
-            ← Back to Home
-          </button>
-
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <CurrencyDollar weight="fill" className="text-yellow-300 text-2xl" />
-              <div>
-                <div className="text-xs text-orange-100">Balance</div>
-                <div className="text-white font-bold text-lg">${balance.toFixed(2)}</div>
-              </div>
-              <button
-                onClick={() => router.push("/topup")}
-                className="ml-4 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm font-bold transition-colors"
-              >
-                Top Up
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* Main Content Area */}
         <div className="min-h-[calc(100vh-240px)] flex flex-col items-center justify-center">
           {/* Idle State */}
@@ -475,17 +448,17 @@ export default function BoxOpeningPage() {
           <>
             <button
               onClick={() => setShowContents(!showContents)}
-              className="fixed top-24 left-6 bg-white text-orange-600 p-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-110 transition-all z-30 group"
-              title="What's Inside"
+              className="fixed top-24 left-6 bg-white text-orange-600 px-5 py-3 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all z-30 flex items-center gap-2"
             >
-              <ListBullets weight="bold" className="text-2xl" />
+              <ListDashes weight="bold" className="text-xl" />
+              <span className="text-sm">What's Inside</span>
             </button>
             <button
               onClick={() => setShowChat(!showChat)}
-              className="fixed top-24 right-6 bg-white text-orange-600 p-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-110 transition-all z-30 group"
-              title="Live Chat"
+              className="fixed top-24 right-6 bg-white text-orange-600 px-5 py-3 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all z-30 flex items-center gap-2"
             >
-              <ChatCircle weight="fill" className="text-2xl" />
+              <Chats weight="fill" className="text-xl" />
+              <span className="text-sm">Live Chat</span>
             </button>
           </>
         )}

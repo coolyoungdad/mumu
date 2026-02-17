@@ -75,25 +75,31 @@ export default function Navbar() {
           </a>
 
           {!isLoading && (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {user ? (
                 <>
-                  <div className="hidden sm:flex items-center gap-2 text-sm font-medium bg-white/10 px-4 py-2 rounded-full">
-                    <span className="text-orange-200">Balance:</span>
-                    <span className="font-bold">${balance.toFixed(2)}</span>
+                  <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
+                    <span className="text-xs text-orange-200">Balance:</span>
+                    <span className="font-bold text-sm">${balance.toFixed(2)}</span>
                   </div>
                   <button
-                    onClick={() => router.push("/profile")}
-                    className="hidden sm:flex items-center gap-2 text-sm font-medium hover:text-orange-200 transition-colors"
+                    onClick={() => router.push("/topup")}
+                    className="bg-orange-500 hover:bg-orange-600 px-3 py-1.5 rounded-full font-bold text-xs transition-colors"
                   >
-                    <User weight="bold" className="text-lg" />
+                    Top Up
+                  </button>
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="hidden sm:flex items-center gap-1.5 text-xs font-medium hover:text-orange-200 transition-colors"
+                  >
+                    <User weight="bold" className="text-base" />
                     Profile
                   </button>
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full font-medium text-sm transition-colors"
+                    className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full font-medium text-xs transition-colors"
                   >
-                    <SignOut weight="bold" className="text-lg" />
+                    <SignOut weight="bold" className="text-base" />
                     <span className="hidden sm:inline">Sign Out</span>
                   </button>
                 </>
@@ -101,13 +107,13 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => router.push("/auth/login")}
-                    className="hidden sm:flex items-center gap-2 text-sm font-medium hover:text-orange-200 transition-colors"
+                    className="text-sm font-medium hover:text-orange-200 transition-colors"
                   >
                     Log In
                   </button>
                   <button
                     onClick={() => router.push("/auth/signup")}
-                    className="bg-white text-orange-600 px-5 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-orange-900/20"
+                    className="bg-white text-orange-600 px-4 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-orange-900/20"
                   >
                     Sign Up
                   </button>

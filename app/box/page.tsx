@@ -8,6 +8,9 @@ import {
   Sparkle,
   CurrencyDollar,
   ArrowsClockwise,
+  X,
+  ListBullets,
+  ChatCircle,
 } from "@phosphor-icons/react/dist/ssr";
 import { BOX_PRICE, RARITY_COLORS, type RarityTier } from "@/lib/types/database";
 import Navbar from "@/components/Navbar";
@@ -36,6 +39,8 @@ export default function BoxOpeningPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [countdown, setCountdown] = useState(3);
+  const [showContents, setShowContents] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -47,37 +52,13 @@ export default function BoxOpeningPage() {
     setBalance(100.00); // Mock balance for demo
     setIsLoading(false);
     return;
-
-    // REAL AUTH CODE - Uncomment when Supabase is set up
-    // const supabase = createClient();
-    // const {
-    //   data: { user },
-    // } = await supabase.auth.getUser();
-
-    // if (!user) {
-    //   router.push("/");
-    //   return;
-    // }
-
-    // setUser(user);
-
-    // // Fetch user balance
-    // const { data: userData } = await supabase
-    //   .from("users")
-    //   .select("account_balance")
-    //   .eq("id", user.id)
-    //   .single();
-
-    // if (userData) {
-    //   setBalance(userData.account_balance);
-    // }
-
-    // setIsLoading(false);
   };
 
   const handleOpenBox = async () => {
     setError(null);
     setOpenState("opening");
+    setShowContents(false);
+    setShowChat(false);
 
     // Countdown animation
     setCountdown(3);
@@ -114,7 +95,7 @@ export default function BoxOpeningPage() {
       setOpenState("splash");
 
       // Splash duration - longer for rare/ultra
-      const splashDuration = item.rarity === "rare" || item.rarity === "ultra" ? 1500 : 1000;
+      const splashDuration = item.rarity === "rare" || item.rarity === "ultra" ? 2000 : 1200;
       await new Promise((resolve) => setTimeout(resolve, splashDuration));
 
       // Now reveal the item
@@ -178,116 +159,163 @@ export default function BoxOpeningPage() {
   }
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen overflow-hidden">
       <div className="gradient-bg"></div>
       <Navbar />
 
       {/* Item Detail Modal */}
       <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
 
-      <div className="relative z-10 max-w-[1800px] mx-auto px-6 py-20 mt-20">
-        {/* Header with Balance */}
+      {/* Slide-out Contents Panel */}
+      <div
+        className={`fixed top-0 left-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 z-40 ${
+          showContents ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-orange-950">Box Contents</h3>
+            <button
+              onClick={() => setShowContents(false)}
+              className="p-2 hover:bg-orange-100 rounded-lg transition-colors"
+            >
+              <X weight="bold" className="text-xl text-orange-600" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <BoxContents onItemClick={setSelectedItem} />
+          </div>
+        </div>
+      </div>
+
+      {/* Slide-out Chat Panel */}
+      <div
+        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 z-40 ${
+          showChat ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="p-6 h-full flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-orange-950">Live Chat</h3>
+            <button
+              onClick={() => setShowChat(false)}
+              className="p-2 hover:bg-orange-100 rounded-lg transition-colors"
+            >
+              <X weight="bold" className="text-xl text-orange-600" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <LiveChat />
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 mt-20">
+        {/* Top Bar with Balance and Quick Actions */}
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => router.push("/")}
-            className="text-white hover:text-orange-200 transition-colors"
+            className="text-white hover:text-orange-200 transition-colors font-medium flex items-center gap-2"
           >
-            ← Back
+            ← Back to Home
           </button>
 
-          <div className="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
-            <CurrencyDollar weight="fill" className="text-yellow-300 text-xl" />
-            <div>
-              <div className="text-xs text-orange-100">Balance</div>
-              <div className="text-white font-bold">${balance.toFixed(2)}</div>
+          <div className="flex items-center gap-4">
+            <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-full flex items-center gap-3 border border-white/20">
+              <CurrencyDollar weight="fill" className="text-yellow-300 text-2xl" />
+              <div>
+                <div className="text-xs text-orange-100">Balance</div>
+                <div className="text-white font-bold text-lg">${balance.toFixed(2)}</div>
+              </div>
+              <button
+                onClick={() => router.push("/topup")}
+                className="ml-4 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full text-sm font-bold transition-colors"
+              >
+                Top Up
+              </button>
             </div>
-            <button
-              onClick={() => router.push("/topup")}
-              className="ml-4 bg-white/20 hover:bg-white/30 text-white px-4 py-1 rounded-full text-sm font-bold transition-colors"
-            >
-              Top Up
-            </button>
           </div>
         </div>
 
-        {/* Three Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Sidebar - Box Contents */}
-          <div className="hidden lg:block lg:col-span-3">
-            <BoxContents onItemClick={setSelectedItem} />
-          </div>
-
-          {/* Center - Main Box Area */}
-          <div className="lg:col-span-6">
-            <div className="p-12 text-center flex flex-col justify-center min-h-[600px]">
+        {/* Main Content Area */}
+        <div className="min-h-[calc(100vh-240px)] flex flex-col items-center justify-center">
           {/* Idle State */}
           {openState === "idle" && (
-            <>
-              <h1 className="text-4xl font-bold text-orange-950 mb-4">
+            <div className="text-center max-w-2xl mx-auto animate-[fadeIn_0.5s_ease-out]">
+              <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
                 Mystery Box
               </h1>
-              <p className="text-orange-800 mb-8">
-                Open a box to reveal a surprise item! You can sell it back instantly
-                or keep it.
+              <p className="text-xl text-orange-100 mb-12 max-w-xl mx-auto">
+                Open a mystery box to reveal a surprise collectible! Sell it back instantly or add it to your collection.
               </p>
 
-              <div className="relative w-64 h-64 mx-auto mb-8">
-                <div className="absolute inset-0 bg-orange-400 blur-[80px] opacity-40 rounded-full"></div>
-                <div className="relative w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform duration-300 border-4 border-white/20 cursor-pointer">
-                  <div className="absolute inset-0 dot-pattern opacity-20 rounded-3xl"></div>
-                  <Package weight="fill" className="text-9xl text-white drop-shadow-lg relative z-10" />
+              {/* The Box */}
+              <div className="relative w-80 h-80 mx-auto mb-12">
+                <div className="absolute inset-0 bg-orange-400 blur-[100px] opacity-50 rounded-full animate-pulse-glow"></div>
+                <div className="relative w-full h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-all duration-300 border-4 border-white/30 cursor-pointer group">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
+                  <Package weight="fill" className="text-[200px] text-white drop-shadow-2xl relative z-10 group-hover:scale-110 transition-transform" />
                 </div>
               </div>
 
-              <div className="bg-orange-50 rounded-xl p-4 mb-8 max-w-md mx-auto">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-orange-950">Box Price:</span>
-                  <span className="text-2xl font-bold text-orange-600">
-                    ${BOX_PRICE.toFixed(2)}
-                  </span>
+              {/* Price and Open Button */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-6 border border-white/20">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-lg font-semibold text-white">Box Price:</span>
+                  <span className="text-4xl font-bold text-orange-300">${BOX_PRICE.toFixed(2)}</span>
                 </div>
+
+                {error && (
+                  <div className="bg-red-500/20 border-2 border-red-400/50 text-red-100 rounded-xl p-4 mb-6 backdrop-blur-sm">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleOpenBox}
+                  disabled={!canAffordBox}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-5 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-3"
+                >
+                  <Sparkle weight="fill" className="text-2xl" />
+                  Open Mystery Box
+                </button>
+
+                {!canAffordBox && (
+                  <p className="text-red-300 mt-4 font-medium">
+                    Insufficient balance. Please top up your account.
+                  </p>
+                )}
               </div>
 
-              {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-4 mb-6 max-w-md mx-auto">
-                  {error}
-                </div>
-              )}
-
-              <button
-                onClick={handleOpenBox}
-                disabled={!canAffordBox}
-                className="bg-orange-600 text-white px-12 py-4 rounded-full font-bold text-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl flex items-center gap-2 mx-auto"
-              >
-                <Sparkle weight="fill" />
-                Open Box
-              </button>
-
-              {!canAffordBox && (
-                <p className="text-red-600 mt-4">
-                  Insufficient balance. Please top up your account.
-                </p>
-              )}
-            </>
+              {/* Quick Links */}
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => router.push("/profile")}
+                  className="text-white/80 hover:text-white transition-colors font-medium"
+                >
+                  View My Inventory →
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Opening Animation */}
           {openState === "opening" && (
-            <div className="py-12">
-              <div className="relative w-80 h-80 mx-auto mb-8">
-                <div className="absolute inset-0 bg-orange-400 blur-[100px] opacity-70 rounded-full animate-pulse-glow"></div>
-                <div className="relative w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl shadow-2xl flex items-center justify-center transform animate-float border-4 border-white/20">
-                  <div className="absolute inset-0 dot-pattern opacity-20 rounded-3xl"></div>
+            <div className="text-center animate-[fadeIn_0.3s_ease-out]">
+              <div className="relative w-96 h-96 mx-auto mb-8">
+                <div className="absolute inset-0 bg-orange-400 blur-[120px] opacity-80 rounded-full animate-pulse-glow"></div>
+                <div className="relative w-full h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 rounded-3xl shadow-2xl flex items-center justify-center transform animate-float border-4 border-white/30">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
                   {countdown > 0 ? (
-                    <div className="text-9xl font-bold text-white drop-shadow-lg animate-pulse z-10">
+                    <div className="text-[180px] font-bold text-white drop-shadow-2xl animate-pulse z-10">
                       {countdown}
                     </div>
                   ) : (
-                    <Package weight="fill" className="text-9xl text-white drop-shadow-lg animate-pulse z-10" />
+                    <Package weight="fill" className="text-[180px] text-white drop-shadow-2xl animate-pulse z-10" />
                   )}
                 </div>
               </div>
-              <p className="text-3xl font-bold text-orange-950 animate-pulse">
+              <p className="text-4xl font-bold text-white animate-pulse drop-shadow-lg">
                 {countdown > 0 ? "Get ready..." : "Opening..."}
               </p>
             </div>
@@ -295,42 +323,40 @@ export default function BoxOpeningPage() {
 
           {/* Splash Animation */}
           {openState === "splash" && revealedItem && (
-            <div className="py-20">
-              <div className="relative mx-auto mb-8" style={{
-                width: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "500px" : "400px",
-                height: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "500px" : "400px"
+            <div className="text-center animate-[fadeIn_0.3s_ease-out]">
+              <div className="relative mx-auto mb-12" style={{
+                width: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "600px" : "500px",
+                height: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "600px" : "500px"
               }}>
-                {/* Outer burst */}
+                {/* Multiple burst layers */}
                 <div
-                  className={`absolute inset-0 rounded-full animate-[splash-burst_0.8s_ease-out_infinite] ${
+                  className={`absolute inset-0 rounded-full animate-[splash-burst_1s_ease-out_infinite] ${
                     RARITY_COLORS[revealedItem.rarity].border.replace("border-", "bg-")
                   }`}
-                  style={{ opacity: 0.6 }}
+                  style={{ opacity: 0.7 }}
                 ></div>
-                {/* Middle burst */}
                 <div
-                  className={`absolute inset-0 rounded-full animate-[splash-burst_0.8s_ease-out_infinite] ${
+                  className={`absolute inset-0 rounded-full animate-[splash-burst_1s_ease-out_infinite] ${
                     RARITY_COLORS[revealedItem.rarity].bg
                   }`}
-                  style={{ animationDelay: "0.2s" }}
+                  style={{ animationDelay: "0.15s" }}
                 ></div>
-                {/* Inner burst */}
                 <div
-                  className={`absolute inset-0 rounded-full animate-[splash-burst_0.8s_ease-out_infinite] ${
+                  className={`absolute inset-0 rounded-full animate-[splash-burst_1s_ease-out_infinite] ${
                     RARITY_COLORS[revealedItem.rarity].text.replace("text-", "bg-")
                   }`}
-                  style={{ animationDelay: "0.4s", opacity: 0.4 }}
+                  style={{ animationDelay: "0.3s", opacity: 0.5 }}
                 ></div>
                 {/* Center glow */}
                 <div
-                  className={`absolute inset-0 blur-[120px] rounded-full ${
+                  className={`absolute inset-0 blur-[150px] rounded-full ${
                     RARITY_COLORS[revealedItem.rarity].bg
                   }`}
-                  style={{ opacity: 0.9 }}
+                  style={{ opacity: 0.95 }}
                 ></div>
               </div>
               {revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? (
-                <p className="text-4xl font-bold text-white animate-pulse drop-shadow-lg">
+                <p className="text-6xl font-bold text-white animate-pulse drop-shadow-2xl">
                   ✨ {revealedItem.rarity === "ultra" ? "ULTRA RARE!" : "RARE!"} ✨
                 </p>
               ) : null}
@@ -339,13 +365,13 @@ export default function BoxOpeningPage() {
 
           {/* Revealed Item */}
           {openState === "revealing" && revealedItem && (
-            <div className="animate-[reveal-scale_0.5s_ease-out]">
-              <div className="mb-8">
+            <div className="max-w-2xl mx-auto animate-[reveal-scale_0.5s_ease-out]">
+              <div className="text-center mb-8">
                 <Sparkle
                   weight="fill"
-                  className="text-6xl text-orange-600 mx-auto mb-4 animate-pulse-glow"
+                  className="text-8xl text-orange-300 mx-auto mb-4 animate-pulse-glow drop-shadow-lg"
                 />
-                <h2 className="text-3xl font-bold text-orange-950 mb-2">
+                <h2 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
                   You got!
                 </h2>
               </div>
@@ -353,98 +379,108 @@ export default function BoxOpeningPage() {
               <div
                 className={`${
                   RARITY_COLORS[revealedItem.rarity].bg
-                } ${RARITY_COLORS[revealedItem.rarity].border} border-4 rounded-3xl p-8 max-w-lg mx-auto mb-8`}
+                } ${RARITY_COLORS[revealedItem.rarity].border} border-4 rounded-3xl p-10 shadow-2xl backdrop-blur-sm`}
               >
-                <div className="bg-white rounded-2xl aspect-square flex items-center justify-center mb-4 p-8">
-                  <Package weight="fill" className="text-9xl text-orange-600" />
+                <div className="bg-white rounded-2xl aspect-square flex items-center justify-center mb-6 p-12 shadow-lg">
+                  <Package weight="fill" className="text-[160px] text-orange-600" />
                 </div>
 
-                <h3 className="text-2xl font-bold text-orange-950 mb-2">
+                <h3 className="text-3xl font-bold text-orange-950 mb-3 text-center">
                   {revealedItem.name}
                 </h3>
-                <p className="text-sm text-orange-600 font-mono mb-4">
+                <p className="text-sm text-orange-600 font-mono mb-6 text-center">
                   {revealedItem.sku}
                 </p>
 
-                <div
-                  className={`inline-block ${
-                    RARITY_COLORS[revealedItem.rarity].bg
-                  } ${
-                    RARITY_COLORS[revealedItem.rarity].text
-                  } px-4 py-2 rounded-full font-bold uppercase text-sm mb-4`}
-                >
-                  {revealedItem.rarity}
+                <div className="flex justify-center mb-6">
+                  <div
+                    className={`inline-block ${
+                      RARITY_COLORS[revealedItem.rarity].bg
+                    } ${
+                      RARITY_COLORS[revealedItem.rarity].text
+                    } px-6 py-3 rounded-full font-bold uppercase text-sm border-2 border-white/50`}
+                  >
+                    {revealedItem.rarity}
+                  </div>
                 </div>
 
-                <div className="bg-white rounded-xl p-4">
-                  <div className="text-sm text-orange-600 mb-1">Sell Back Value</div>
-                  <div className="text-3xl font-bold text-orange-950">
+                <div className="bg-white rounded-2xl p-6 mb-8 shadow-lg">
+                  <div className="text-sm text-orange-600 mb-2 font-medium">Instant Buyback Value</div>
+                  <div className="text-5xl font-bold text-orange-950">
                     ${revealedItem.buyback_price.toFixed(2)}
                   </div>
                 </div>
-              </div>
 
-              <p className="text-orange-800 mb-6">
-                What would you like to do with this item?
-              </p>
+                <p className="text-center text-orange-800 mb-6 text-lg font-medium">
+                  What would you like to do?
+                </p>
 
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={handleSellBack}
-                  className="bg-green-600 text-white px-8 py-4 rounded-full font-bold hover:bg-green-700 transition-all shadow-lg"
-                >
-                  Sell for ${revealedItem.buyback_price.toFixed(2)}
-                </button>
-                <button
-                  onClick={handleKeep}
-                  className="bg-orange-600 text-white px-8 py-4 rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg"
-                >
-                  Keep It
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleSellBack}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-5 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-green-500/50 hover:scale-105"
+                  >
+                    💰 Sell for ${revealedItem.buyback_price.toFixed(2)}
+                  </button>
+                  <button
+                    onClick={handleKeep}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-5 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-orange-500/50 hover:scale-105"
+                  >
+                    ⭐ Keep It
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
           {/* Decision Made */}
           {openState === "decided" && (
-            <div className="py-20">
-              <div className="text-6xl mb-4">✨</div>
-              <p className="text-2xl font-bold text-orange-950 mb-8">
-                {revealedItem ? "Item added to your inventory!" : "Item sold!"}
+            <div className="text-center animate-[fadeIn_0.5s_ease-out]">
+              <div className="text-8xl mb-6">✨</div>
+              <p className="text-4xl font-bold text-white mb-12 drop-shadow-lg">
+                Success!
               </p>
               <button
                 onClick={() => {
                   setOpenState("idle");
                   setRevealedItem(null);
                 }}
-                className="bg-orange-600 text-white px-8 py-4 rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg flex items-center gap-2 mx-auto"
+                className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-5 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-red-600 transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center gap-3 mx-auto"
               >
-                <ArrowsClockwise weight="bold" />
+                <ArrowsClockwise weight="bold" className="text-2xl" />
                 Open Another Box
               </button>
             </div>
           )}
-            </div>
-
-            {/* Quick Actions */}
-            {openState === "idle" && (
-              <div className="flex gap-4 justify-center mt-8">
-                <button
-                  onClick={() => router.push("/profile")}
-                  className="text-white hover:text-orange-200 transition-colors font-medium"
-                >
-                  View My Inventory →
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar - Live Chat */}
-          <div className="hidden lg:block lg:col-span-3">
-            <LiveChat />
-          </div>
         </div>
+
+        {/* Floating Action Buttons (only show when idle) */}
+        {openState === "idle" && (
+          <div className="fixed bottom-8 left-0 right-0 flex justify-center gap-4 z-30">
+            <button
+              onClick={() => setShowContents(!showContents)}
+              className="bg-white text-orange-600 px-6 py-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <ListBullets weight="bold" className="text-xl" />
+              What's Inside
+            </button>
+            <button
+              onClick={() => setShowChat(!showChat)}
+              className="bg-white text-orange-600 px-6 py-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all flex items-center gap-2"
+            >
+              <ChatCircle weight="fill" className="text-xl" />
+              Live Chat
+            </button>
+          </div>
+        )}
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

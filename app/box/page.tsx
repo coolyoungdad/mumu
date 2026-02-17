@@ -165,34 +165,28 @@ export default function BoxOpeningPage() {
       {/* Item Detail Modal */}
       <ItemDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
 
-      {/* Backdrop for panels */}
+      {/* Backdrop for panels - NO click to close, only X button */}
       {(showContents || showChat) && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 transition-opacity"
-          onClick={() => {
-            setShowContents(false);
-            setShowChat(false);
-          }}
-        />
+        <div className="fixed inset-0 bg-black/50 z-30 transition-opacity" />
       )}
 
       {/* Slide-out Contents Panel */}
       <div
-        className={`fixed top-0 left-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 z-40 ${
+        className={`fixed top-0 left-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 z-50 ${
           showContents ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="p-6 h-full flex flex-col">
-          <div className="flex items-center justify-between mb-6">
+        <div className="h-full flex flex-col pt-20">
+          <div className="px-6 pb-4 flex items-center justify-between border-b-2 border-orange-100">
             <h3 className="text-xl font-bold text-orange-950">Box Contents</h3>
             <button
               onClick={() => setShowContents(false)}
-              className="p-2 hover:bg-red-100 rounded-lg transition-colors bg-orange-50"
+              className="p-3 hover:bg-red-100 rounded-lg transition-colors bg-orange-100 border-2 border-orange-400 shadow-lg"
             >
-              <X weight="bold" className="text-2xl text-orange-600" />
+              <X weight="bold" className="text-2xl text-red-600" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto px-6 pt-4">
             <BoxContents onItemClick={setSelectedItem} />
           </div>
         </div>
@@ -200,21 +194,21 @@ export default function BoxOpeningPage() {
 
       {/* Slide-out Chat Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 z-40 ${
+        className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 z-50 ${
           showChat ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="p-6 h-full flex flex-col">
-          <div className="flex items-center justify-between mb-6">
+        <div className="h-full flex flex-col pt-20">
+          <div className="px-6 pb-4 flex items-center justify-between border-b-2 border-orange-100">
             <h3 className="text-xl font-bold text-orange-950">Live Chat</h3>
             <button
               onClick={() => setShowChat(false)}
-              className="p-2 hover:bg-red-100 rounded-lg transition-colors bg-orange-50"
+              className="p-3 hover:bg-red-100 rounded-lg transition-colors bg-orange-100 border-2 border-orange-400 shadow-lg"
             >
-              <X weight="bold" className="text-2xl text-orange-600" />
+              <X weight="bold" className="text-2xl text-red-600" />
             </button>
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden px-6 pt-4">
             <LiveChat />
           </div>
         </div>

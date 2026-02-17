@@ -23,8 +23,9 @@ export default function Navbar() {
         setUser(session.user);
         fetchBalance(session.user.id);
       } else {
-        setUser(null);
-        setBalance(0);
+        // DEMO MODE - Show mock user and balance when session ends
+        setUser({ id: "demo-user", email: "demo@pompom.com" });
+        setBalance(100.00);
       }
     });
 

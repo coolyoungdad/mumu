@@ -1,16 +1,28 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { PaperPlaneRight, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import {
+  PaperPlaneRight,
+  Sparkle,
+  Warning,
+  DotsThreeVertical,
+  Flag,
+  Trash,
+  ProhibitInset,
+  SpeakerSimpleSlash,
+} from "@phosphor-icons/react/dist/ssr";
+import { createClient } from "@/lib/supabase/client";
 
 interface ChatMessage {
   id: string;
+  user_id?: string;
   type: "user" | "pull";
   username: string;
   message: string;
   timestamp: Date;
   rarity?: "rare" | "ultra";
   itemName?: string;
+  is_deleted?: boolean;
 }
 
 const MOCK_USERNAMES = [
@@ -54,7 +66,13 @@ const ULTRA_ITEMS = [
 export default function LiveChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const supabase = createClient();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,6 +81,29 @@ export default function LiveChat() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Check if user is admin
+  useEffect(() => {
+    checkAdminStatus();
+  }, []);
+
+  const checkAdminStatus = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("users")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
+
+    if (data?.is_admin) {
+      setIsAdmin(true);
+    }
+  };
 
   // Initialize with some messages
   useEffect(() => {
@@ -117,19 +158,115 @@ export default function LiveChat() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldownRemaining > 0) {
+      const timer = setTimeout(() => {
+        setCooldownRemaining(cooldownRemaining - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldownRemaining]);
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || isSending || cooldownRemaining > 0) return;
 
-    setMessages(prev => [...prev, {
-      id: `user-${Date.now()}`,
-      type: "user",
-      username: "You",
-      message: inputValue,
-      timestamp: new Date(),
-    }]);
+    setIsSending(true);
+    setError(null);
 
-    setInputValue("");
+    try {
+      const response = await fetch("/api/chat/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: inputValue,
+          type: "user",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (data.cooldownRemaining) {
+          setCooldownRemaining(data.cooldownRemaining);
+        }
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Add message to local state
+      setMessages(prev => [...prev, {
+        id: data.message.id,
+        user_id: data.message.user_id,
+        type: "user",
+        username: "You",
+        message: inputValue,
+        timestamp: new Date(data.message.created_at),
+      }]);
+
+      setInputValue("");
+      setCooldownRemaining(3); // Set 3-second cooldown
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send message");
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleReport = async (messageId: string) => {
+    try {
+      const response = await fetch("/api/chat/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messageId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to report message");
+      }
+
+      alert("Message reported successfully");
+      setActiveMenu(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to report message");
+    }
+  };
+
+  const handleModerate = async (action: string, targetUserId: string, messageId?: string) => {
+    try {
+      const response = await fetch("/api/chat/moderate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          targetUserId,
+          messageId,
+          muteDuration: action === "mute_user" ? 3600 : undefined, // 1 hour mute
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to perform action");
+      }
+
+      // If message deleted, remove from UI
+      if (action === "delete_message" && messageId) {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === messageId ? { ...msg, is_deleted: true } : msg
+          )
+        );
+      }
+
+      alert(data.message);
+      setActiveMenu(null);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to perform action");
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -150,11 +287,23 @@ export default function LiveChat() {
         </div>
       </div>
 
+      {/* Error Message */}
+      {error && (
+        <div className="mb-4 bg-red-50 border-2 border-red-200 rounded-xl p-3 flex items-center gap-2 text-red-600">
+          <Warning weight="fill" className="text-xl flex-shrink-0" />
+          <span className="text-sm">{error}</span>
+        </div>
+      )}
+
       {/* Messages Area */}
       <div className="space-y-3 mb-4">
         {messages.map((msg) => (
           <div key={msg.id} className="animate-slide-in">
-            {msg.type === "pull" ? (
+            {msg.is_deleted ? (
+              <div className="bg-gray-50 rounded-xl p-3 border border-gray-200 text-gray-500 italic text-sm">
+                [Message deleted by moderator]
+              </div>
+            ) : msg.type === "pull" ? (
               // Special pull announcement
               <div className={`p-4 rounded-xl border-2 ${
                 msg.rarity === "ultra"
@@ -187,7 +336,7 @@ export default function LiveChat() {
               </div>
             ) : (
               // Regular user message
-              <div className="bg-orange-50 rounded-xl p-3 border border-orange-100">
+              <div className="bg-orange-50 rounded-xl p-3 border border-orange-100 relative group">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`font-bold text-sm ${
                     msg.username === "You" ? "text-orange-600" : "text-orange-950"
@@ -197,6 +346,60 @@ export default function LiveChat() {
                   <span className="text-xs text-orange-400">
                     {formatTime(msg.timestamp)}
                   </span>
+
+                  {/* Message Menu */}
+                  {msg.username !== "You" && (
+                    <div className="ml-auto relative">
+                      <button
+                        onClick={() => setActiveMenu(activeMenu === msg.id ? null : msg.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-orange-200 rounded"
+                      >
+                        <DotsThreeVertical weight="bold" className="text-orange-600" />
+                      </button>
+
+                      {activeMenu === msg.id && (
+                        <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border-2 border-orange-200 py-1 z-10 min-w-[150px]">
+                          <button
+                            onClick={() => handleReport(msg.id)}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-orange-50 flex items-center gap-2 text-orange-950"
+                          >
+                            <Flag weight="bold" className="text-orange-600" />
+                            Report
+                          </button>
+
+                          {isAdmin && msg.user_id && (
+                            <>
+                              <div className="border-t border-orange-100 my-1"></div>
+                              <div className="px-2 py-1 text-xs text-orange-400 font-semibold">
+                                Admin Actions
+                              </div>
+                              <button
+                                onClick={() => handleModerate("delete_message", msg.user_id!, msg.id)}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                              >
+                                <Trash weight="bold" />
+                                Delete Message
+                              </button>
+                              <button
+                                onClick={() => handleModerate("mute_user", msg.user_id!)}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-yellow-50 flex items-center gap-2 text-yellow-600"
+                              >
+                                <SpeakerSimpleSlash weight="bold" />
+                                Mute User (1h)
+                              </button>
+                              <button
+                                onClick={() => handleModerate("ban_user", msg.user_id!)}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                              >
+                                <ProhibitInset weight="bold" />
+                                Ban User
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="text-orange-800">
                   {msg.message}
@@ -210,17 +413,29 @@ export default function LiveChat() {
 
       {/* Input Area */}
       <form onSubmit={handleSendMessage} className="flex gap-2">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:outline-none bg-white text-orange-950 placeholder-orange-300"
-          maxLength={200}
-        />
+        <div className="flex-1">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={
+              cooldownRemaining > 0
+                ? `Wait ${cooldownRemaining}s...`
+                : "Type a message..."
+            }
+            disabled={cooldownRemaining > 0 || isSending}
+            className="w-full px-4 py-3 rounded-xl border-2 border-orange-200 focus:border-orange-400 focus:outline-none bg-white text-orange-950 placeholder-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            maxLength={200}
+          />
+          {cooldownRemaining > 0 && (
+            <div className="text-xs text-orange-500 mt-1">
+              Cooldown: {cooldownRemaining}s remaining
+            </div>
+          )}
+        </div>
         <button
           type="submit"
-          disabled={!inputValue.trim()}
+          disabled={!inputValue.trim() || isSending || cooldownRemaining > 0}
           className="bg-orange-600 text-white p-3 rounded-xl font-bold hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
         >
           <PaperPlaneRight weight="fill" className="text-xl" />

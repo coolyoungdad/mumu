@@ -106,7 +106,9 @@ export default function BoxContents({ onItemClick }: BoxContentsProps) {
   const filteredItems = (selectedRarity === "all"
     ? items
     : items.filter(item => item.rarity === selectedRarity)
-  ).sort((a, b) => rarityOrder[b.rarity] - rarityOrder[a.rarity]); // Sort rarest first
+  )
+    .filter(item => item.stock > 0) // Hide items with 0 stock
+    .sort((a, b) => rarityOrder[b.rarity] - rarityOrder[a.rarity]); // Sort rarest first
 
   const rarityTabs: Array<{ label: string; value: RarityTier | "all" }> = [
     { label: "All", value: "all" },
@@ -179,9 +181,9 @@ export default function BoxContents({ onItemClick }: BoxContentsProps) {
                   <span className="text-sm">${item.buybackMin}-${item.buybackMax}</span>
                 </div>
                 <div className={`text-xs font-semibold ${
-                  item.stock < 20 ? "text-red-600" : "text-orange-500"
+                  item.stock <= 4 ? "text-red-600" : "text-orange-500"
                 }`}>
-                  {item.stock} left
+                  {item.stock <= 4 ? "Almost gone!" : `${item.stock} left`}
                 </div>
               </div>
             </div>

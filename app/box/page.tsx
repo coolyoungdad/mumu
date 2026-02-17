@@ -35,6 +35,7 @@ export default function BoxOpeningPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [countdown, setCountdown] = useState(3);
 
   useEffect(() => {
     checkAuth();
@@ -78,8 +79,13 @@ export default function BoxOpeningPage() {
     setError(null);
     setOpenState("opening");
 
-    // Opening animation
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // Countdown animation
+    setCountdown(3);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    setCountdown(2);
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    setCountdown(1);
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     try {
       const response = await fetch("/api/box/open", {
@@ -91,6 +97,9 @@ export default function BoxOpeningPage() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to open box");
       }
+
+      // Brief suspense before reveal
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       setRevealedItem({
         id: data.product.id,
@@ -194,15 +203,15 @@ export default function BoxOpeningPage() {
         </div>
 
         {/* Three Column Layout */}
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Sidebar - Box Contents */}
-          <div className="col-span-3">
+          <div className="hidden lg:block lg:col-span-3">
             <BoxContents onItemClick={setSelectedItem} />
           </div>
 
           {/* Center - Main Box Area */}
-          <div className="col-span-6">
-            <div className="glass-card-white p-12 rounded-3xl text-center">
+          <div className="lg:col-span-6">
+            <div className="glass-card-white p-12 rounded-3xl text-center min-h-[700px] flex flex-col justify-center">
           {/* Idle State */}
           {openState === "idle" && (
             <>
@@ -256,22 +265,29 @@ export default function BoxOpeningPage() {
 
           {/* Opening Animation */}
           {openState === "opening" && (
-            <div className="py-20">
-              <div className="relative w-64 h-64 mx-auto">
-                <div className="absolute inset-0 bg-orange-400 blur-[80px] opacity-60 rounded-full animate-pulse-glow"></div>
+            <div className="py-12">
+              <div className="relative w-80 h-80 mx-auto mb-8">
+                <div className="absolute inset-0 bg-orange-400 blur-[100px] opacity-70 rounded-full animate-pulse-glow"></div>
                 <div className="relative w-full h-full bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl shadow-2xl flex items-center justify-center transform animate-float border-4 border-white/20">
-                  <Package weight="fill" className="text-9xl text-white drop-shadow-lg animate-pulse" />
+                  <div className="absolute inset-0 dot-pattern opacity-20 rounded-3xl"></div>
+                  {countdown > 0 ? (
+                    <div className="text-9xl font-bold text-white drop-shadow-lg animate-pulse z-10">
+                      {countdown}
+                    </div>
+                  ) : (
+                    <Package weight="fill" className="text-9xl text-white drop-shadow-lg animate-pulse z-10" />
+                  )}
                 </div>
               </div>
-              <p className="text-2xl font-bold text-orange-950 mt-8 animate-pulse">
-                Opening your box...
+              <p className="text-3xl font-bold text-orange-950 animate-pulse">
+                {countdown > 0 ? "Get ready..." : "Opening..."}
               </p>
             </div>
           )}
 
           {/* Revealed Item */}
           {openState === "revealing" && revealedItem && (
-            <>
+            <div className="animate-[reveal-scale_0.5s_ease-out]">
               <div className="mb-8">
                 <Sparkle
                   weight="fill"
@@ -334,7 +350,7 @@ export default function BoxOpeningPage() {
                   Keep It
                 </button>
               </div>
-            </>
+            </div>
           )}
 
           {/* Decision Made */}
@@ -372,7 +388,7 @@ export default function BoxOpeningPage() {
           </div>
 
           {/* Right Sidebar - Live Chat */}
-          <div className="col-span-3">
+          <div className="hidden lg:block lg:col-span-3">
             <LiveChat />
           </div>
         </div>

@@ -324,36 +324,49 @@ export default function BoxOpeningPage() {
           {/* Splash Animation */}
           {openState === "splash" && revealedItem && (
             <div className="text-center animate-[fadeIn_0.3s_ease-out]">
-              <div className="relative mx-auto mb-12" style={{
-                width: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "600px" : "500px",
-                height: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "600px" : "500px"
-              }}>
-                {/* Multiple burst layers */}
+              <div className="relative mx-auto mb-12 w-96 h-96">
+                {/* Central burst glow */}
                 <div
-                  className={`absolute inset-0 rounded-full animate-[splash-burst_1s_ease-out_infinite] ${
-                    RARITY_COLORS[revealedItem.rarity].border.replace("border-", "bg-")
-                  }`}
-                  style={{ opacity: 0.7 }}
-                ></div>
-                <div
-                  className={`absolute inset-0 rounded-full animate-[splash-burst_1s_ease-out_infinite] ${
+                  className={`absolute inset-0 blur-[180px] rounded-full ${
                     RARITY_COLORS[revealedItem.rarity].bg
-                  }`}
-                  style={{ animationDelay: "0.15s" }}
+                  } animate-pulse`}
+                  style={{ opacity: 0.9 }}
                 ></div>
-                <div
-                  className={`absolute inset-0 rounded-full animate-[splash-burst_1s_ease-out_infinite] ${
-                    RARITY_COLORS[revealedItem.rarity].text.replace("text-", "bg-")
-                  }`}
-                  style={{ animationDelay: "0.3s", opacity: 0.5 }}
-                ></div>
-                {/* Center glow */}
-                <div
-                  className={`absolute inset-0 blur-[150px] rounded-full ${
-                    RARITY_COLORS[revealedItem.rarity].bg
-                  }`}
-                  style={{ opacity: 0.95 }}
-                ></div>
+
+                {/* Particle sparkles radiating outward */}
+                {[...Array(12)].map((_, i) => {
+                  const angle = (i * 30) * (Math.PI / 180);
+                  const distance = 150;
+                  const x = Math.cos(angle) * distance;
+                  const y = Math.sin(angle) * distance;
+
+                  return (
+                    <Sparkle
+                      key={i}
+                      weight="fill"
+                      className={`absolute top-1/2 left-1/2 ${
+                        RARITY_COLORS[revealedItem.rarity].text
+                      } animate-[particle-burst_1s_ease-out_infinite]`}
+                      style={{
+                        fontSize: revealedItem.rarity === "ultra" ? "48px" : "32px",
+                        animationDelay: `${i * 0.08}s`,
+                        transform: `translate(${x}px, ${y}px)`,
+                        opacity: 0,
+                      }}
+                    />
+                  );
+                })}
+
+                {/* Center icon pulse */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkle
+                    weight="fill"
+                    className={`${
+                      RARITY_COLORS[revealedItem.rarity].text
+                    } animate-pulse drop-shadow-2xl`}
+                    style={{ fontSize: revealedItem.rarity === "ultra" ? "120px" : "96px" }}
+                  />
+                </div>
               </div>
               {revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? (
                 <p className="text-6xl font-bold text-white animate-pulse drop-shadow-2xl">
@@ -457,24 +470,24 @@ export default function BoxOpeningPage() {
           )}
         </div>
 
-        {/* Floating Action Buttons (only show when idle) */}
+        {/* Fixed Corner Action Buttons */}
         {openState === "idle" && (
-          <div className="fixed bottom-8 left-0 right-0 flex justify-center gap-4 z-30">
+          <>
             <button
               onClick={() => setShowContents(!showContents)}
-              className="bg-white text-orange-600 px-6 py-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all flex items-center gap-2"
+              className="fixed top-24 left-6 bg-white text-orange-600 p-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-110 transition-all z-30 group"
+              title="What's Inside"
             >
-              <ListBullets weight="bold" className="text-xl" />
-              What's Inside
+              <ListBullets weight="bold" className="text-2xl" />
             </button>
             <button
               onClick={() => setShowChat(!showChat)}
-              className="bg-white text-orange-600 px-6 py-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-105 transition-all flex items-center gap-2"
+              className="fixed top-24 right-6 bg-white text-orange-600 p-4 rounded-full font-bold shadow-2xl hover:shadow-orange-500/50 hover:scale-110 transition-all z-30 group"
+              title="Live Chat"
             >
-              <ChatCircle weight="fill" className="text-xl" />
-              Live Chat
+              <ChatCircle weight="fill" className="text-2xl" />
             </button>
-          </div>
+          </>
         )}
       </div>
 
@@ -482,6 +495,19 @@ export default function BoxOpeningPage() {
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes particle-burst {
+          0% {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0);
+          }
+          50% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+            transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1.5);
+          }
         }
       `}</style>
     </div>

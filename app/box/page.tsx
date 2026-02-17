@@ -221,7 +221,7 @@ export default function BoxOpeningPage() {
           </button>
 
           <div className="flex items-center gap-4">
-            <div className="bg-white/10 backdrop-blur-md px-6 py-3 rounded-full flex items-center gap-3 border border-white/20">
+            <div className="flex items-center gap-3">
               <CurrencyDollar weight="fill" className="text-yellow-300 text-2xl" />
               <div>
                 <div className="text-xs text-orange-100">Balance</div>
@@ -243,23 +243,23 @@ export default function BoxOpeningPage() {
           {openState === "idle" && (
             <div className="text-center max-w-2xl mx-auto animate-[fadeIn_0.5s_ease-out]">
               <h1 className="text-5xl font-bold text-white mb-4 drop-shadow-lg">
-                Mystery Box
+                Blind Box
               </h1>
-              <p className="text-xl text-orange-100 mb-12 max-w-xl mx-auto">
-                Open a mystery box to reveal a surprise collectible! Sell it back instantly or add it to your collection.
+              <p className="text-xl text-orange-100 mb-8 max-w-xl mx-auto">
+                Open a blind box to reveal a surprise collectible! Sell it back instantly or add it to your collection.
               </p>
 
               {/* The Box */}
-              <div className="relative w-80 h-80 mx-auto mb-12">
+              <div className="relative w-64 h-64 mx-auto mb-6">
                 <div className="absolute inset-0 bg-orange-400 blur-[100px] opacity-50 rounded-full animate-pulse-glow"></div>
                 <div className="relative w-full h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-all duration-300 border-4 border-white/30 cursor-pointer group">
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
-                  <Package weight="fill" className="text-[200px] text-white drop-shadow-2xl relative z-10 group-hover:scale-110 transition-transform" />
+                  <Package weight="fill" className="text-[160px] text-white drop-shadow-2xl relative z-10 group-hover:scale-110 transition-transform" />
                 </div>
               </div>
 
               {/* Price and Open Button */}
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 mb-6 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mb-4 border border-white/20">
                 <div className="flex justify-between items-center mb-6">
                   <span className="text-lg font-semibold text-white">Box Price:</span>
                   <span className="text-4xl font-bold text-orange-300">${BOX_PRICE.toFixed(2)}</span>
@@ -274,10 +274,10 @@ export default function BoxOpeningPage() {
                 <button
                   onClick={handleOpenBox}
                   disabled={!canAffordBox}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-5 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-3"
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-12 py-4 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-3"
                 >
                   <Sparkle weight="fill" className="text-2xl" />
-                  Open Mystery Box
+                  Open Blind Box
                 </button>
 
                 {!canAffordBox && (

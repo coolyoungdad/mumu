@@ -94,9 +94,19 @@ export default function BoxContents({ onItemClick }: BoxContentsProps) {
   }, []);
 
   const totalStock = items.reduce((sum, item) => sum + item.stock, 0);
-  const filteredItems = selectedRarity === "all"
+
+  // Define rarity sort order (ultra = highest, common = lowest)
+  const rarityOrder: Record<RarityTier, number> = {
+    ultra: 4,
+    rare: 3,
+    uncommon: 2,
+    common: 1,
+  };
+
+  const filteredItems = (selectedRarity === "all"
     ? items
-    : items.filter(item => item.rarity === selectedRarity);
+    : items.filter(item => item.rarity === selectedRarity)
+  ).sort((a, b) => rarityOrder[b.rarity] - rarityOrder[a.rarity]); // Sort rarest first
 
   const rarityTabs: Array<{ label: string; value: RarityTier | "all" }> = [
     { label: "All", value: "all" },

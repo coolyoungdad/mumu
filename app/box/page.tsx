@@ -40,7 +40,7 @@ export default function BoxOpeningPage() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [countdown, setCountdown] = useState(3);
   const [showContents, setShowContents] = useState(false);
-  const [showChat, setShowChat] = useState(true);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -366,61 +366,67 @@ export default function BoxOpeningPage() {
           {/* Revealed Item */}
           {openState === "revealing" && revealedItem && (
             <div className="w-80 mx-auto animate-[reveal-scale_0.5s_ease-out]">
-              <div className="text-center mb-4">
-                <Sparkle
-                  weight="fill"
-                  className="text-6xl text-orange-300 mx-auto mb-2 animate-pulse-glow drop-shadow-lg"
-                />
-                <h2 className="text-3xl font-bold text-white drop-shadow-lg">
-                  You got!
-                </h2>
-              </div>
-
               <div
                 className={`${
                   RARITY_COLORS[revealedItem.rarity].bg
-                } ${RARITY_COLORS[revealedItem.rarity].border} border-4 rounded-3xl p-6 shadow-2xl backdrop-blur-sm`}
+                } ${RARITY_COLORS[revealedItem.rarity].border} border-4 rounded-3xl p-4 shadow-2xl backdrop-blur-sm`}
               >
-                <div className="bg-white rounded-2xl aspect-square flex items-center justify-center mb-4 p-8 shadow-lg">
-                  <Package weight="fill" className="text-[120px] text-orange-600" />
+                {/* Sparkle and "You got!" inline with less space */}
+                <div className="text-center mb-3">
+                  <Sparkle
+                    weight="fill"
+                    className="text-4xl text-orange-300 inline-block drop-shadow-lg animate-pulse-glow"
+                  />
+                  <h2 className="text-xl font-bold text-white drop-shadow-lg inline-block ml-2">
+                    You got!
+                  </h2>
                 </div>
 
-                <h3 className="text-xl font-bold text-orange-950 mb-2 text-center">
+                {/* Item image - smaller */}
+                <div className="bg-white rounded-2xl w-32 h-32 flex items-center justify-center mb-3 mx-auto shadow-lg">
+                  <Package weight="fill" className="text-[80px] text-orange-600" />
+                </div>
+
+                {/* Item details - compact */}
+                <h3 className="text-lg font-bold text-orange-950 mb-1 text-center leading-tight">
                   {revealedItem.name}
                 </h3>
-                <p className="text-xs text-orange-600 font-mono mb-4 text-center">
+                <p className="text-xs text-orange-600 font-mono mb-2 text-center">
                   {revealedItem.sku}
                 </p>
 
-                <div className="flex justify-center mb-4">
+                {/* Rarity badge */}
+                <div className="flex justify-center mb-3">
                   <div
                     className={`inline-block ${
                       RARITY_COLORS[revealedItem.rarity].bg
                     } ${
                       RARITY_COLORS[revealedItem.rarity].text
-                    } px-4 py-2 rounded-full font-bold uppercase text-xs border-2 border-white/50`}
+                    } px-3 py-1 rounded-full font-bold uppercase text-xs border-2 border-white/50`}
                   >
                     {revealedItem.rarity}
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl p-4 mb-4 shadow-lg">
-                  <div className="text-xs text-orange-600 mb-1 font-medium">Instant Buyback</div>
-                  <div className="text-3xl font-bold text-orange-950">
+                {/* Buyback price - more compact */}
+                <div className="bg-white rounded-xl p-3 mb-3 shadow-lg">
+                  <div className="text-xs text-orange-600 font-medium">Instant Buyback</div>
+                  <div className="text-2xl font-bold text-orange-950">
                     ${revealedItem.buyback_price.toFixed(2)}
                   </div>
                 </div>
 
+                {/* Action buttons - smaller */}
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={handleSellBack}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-green-500/50 hover:scale-105"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg hover:shadow-green-500/50 hover:scale-105"
                   >
-                    💰 Sell for ${revealedItem.buyback_price.toFixed(2)}
+                    💰 Sell ${revealedItem.buyback_price.toFixed(2)}
                   </button>
                   <button
                     onClick={handleKeep}
-                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-bold text-sm hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-orange-500/50 hover:scale-105"
+                    className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2.5 rounded-xl font-bold text-sm hover:from-orange-600 hover:to-red-600 transition-all shadow-lg hover:shadow-orange-500/50 hover:scale-105"
                   >
                     ⭐ Keep It
                   </button>

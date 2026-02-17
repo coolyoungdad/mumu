@@ -15,7 +15,7 @@ import BoxContents from "@/components/BoxContents";
 import ItemDetailModal from "@/components/ItemDetailModal";
 import LiveChat from "@/components/LiveChat";
 
-type OpenState = "idle" | "opening" | "revealing" | "decided";
+type OpenState = "idle" | "opening" | "splash" | "revealing" | "decided";
 
 interface RevealedItem {
   id: string;
@@ -98,18 +98,26 @@ export default function BoxOpeningPage() {
         throw new Error(data.error || "Failed to open box");
       }
 
-      // Brief suspense before reveal
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setRevealedItem({
+      // Store the revealed item
+      const item = {
         id: data.product.id,
         name: data.product.name,
         sku: data.product.sku,
         rarity: data.product.rarity,
         buyback_price: data.product.buyback_price,
         inventory_item_id: data.inventory_item_id,
-      });
+      };
+      setRevealedItem(item);
       setBalance(data.new_balance);
+
+      // Show splash animation
+      setOpenState("splash");
+
+      // Splash duration - longer for rare/ultra
+      const splashDuration = item.rarity === "rare" || item.rarity === "ultra" ? 1500 : 1000;
+      await new Promise((resolve) => setTimeout(resolve, splashDuration));
+
+      // Now reveal the item
       setOpenState("revealing");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to open box");
@@ -282,6 +290,50 @@ export default function BoxOpeningPage() {
               <p className="text-3xl font-bold text-orange-950 animate-pulse">
                 {countdown > 0 ? "Get ready..." : "Opening..."}
               </p>
+            </div>
+          )}
+
+          {/* Splash Animation */}
+          {openState === "splash" && revealedItem && (
+            <div className="py-20">
+              <div className="relative mx-auto mb-8" style={{
+                width: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "500px" : "400px",
+                height: revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? "500px" : "400px"
+              }}>
+                {/* Outer burst */}
+                <div
+                  className={`absolute inset-0 rounded-full animate-[splash-burst_0.8s_ease-out_infinite] ${
+                    RARITY_COLORS[revealedItem.rarity].border.replace("border-", "bg-")
+                  }`}
+                  style={{ opacity: 0.6 }}
+                ></div>
+                {/* Middle burst */}
+                <div
+                  className={`absolute inset-0 rounded-full animate-[splash-burst_0.8s_ease-out_infinite] ${
+                    RARITY_COLORS[revealedItem.rarity].bg
+                  }`}
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                {/* Inner burst */}
+                <div
+                  className={`absolute inset-0 rounded-full animate-[splash-burst_0.8s_ease-out_infinite] ${
+                    RARITY_COLORS[revealedItem.rarity].text.replace("text-", "bg-")
+                  }`}
+                  style={{ animationDelay: "0.4s", opacity: 0.4 }}
+                ></div>
+                {/* Center glow */}
+                <div
+                  className={`absolute inset-0 blur-[120px] rounded-full ${
+                    RARITY_COLORS[revealedItem.rarity].bg
+                  }`}
+                  style={{ opacity: 0.9 }}
+                ></div>
+              </div>
+              {revealedItem.rarity === "rare" || revealedItem.rarity === "ultra" ? (
+                <p className="text-4xl font-bold text-white animate-pulse drop-shadow-lg">
+                  ✨ {revealedItem.rarity === "ultra" ? "ULTRA RARE!" : "RARE!"} ✨
+                </p>
+              ) : null}
             </div>
           )}
 

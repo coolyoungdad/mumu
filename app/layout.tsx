@@ -21,6 +21,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jakarta.variable} antialiased`}>
+        {/* Floating decorative icons — fixed to viewport at root level */}
+        <div
+          className="fixed top-[14%] left-[7%] pointer-events-none select-none z-0 animate-float-slow"
+          aria-hidden="true"
+        >
+          <div className="w-24 h-24 rounded-3xl bg-pink-100 flex items-center justify-center shadow-md rotate-[-12deg]">
+            <span className="text-5xl">🩷</span>
+          </div>
+        </div>
+        <div
+          className="fixed top-[52%] right-[6%] pointer-events-none select-none z-0 animate-float-delayed"
+          aria-hidden="true"
+        >
+          <div className="w-20 h-20 rounded-3xl bg-orange-100 flex items-center justify-center shadow-md rotate-[10deg]">
+            <span className="text-4xl">⭐</span>
+          </div>
+        </div>
         {children}
       </body>
     </html>

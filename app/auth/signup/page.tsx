@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tosAgreed, setTosAgreed] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +49,7 @@ export default function SignUpPage() {
           id: data.user.id,
           email: data.user.email!,
           role: "user",
-          account_balance: 0,
+          account_balance: 500,
         });
 
         if (insertError) {
@@ -79,7 +80,7 @@ export default function SignUpPage() {
         <div className="text-center mb-8">
           <button
             onClick={() => router.push("/")}
-            className="text-white hover:text-orange-200 transition-colors mb-4"
+            className="text-orange-800 hover:text-orange-600 transition-colors mb-4"
           >
             ← Back to Home
           </button>
@@ -165,9 +166,31 @@ export default function SignUpPage() {
               </div>
             </div>
 
+            {/* Terms of Service checkbox */}
+            <div className="flex items-start gap-3 py-1">
+              <input
+                id="tos"
+                type="checkbox"
+                checked={tosAgreed}
+                onChange={(e) => setTosAgreed(e.target.checked)}
+                className="mt-1 w-4 h-4 accent-orange-600 cursor-pointer flex-shrink-0"
+              />
+              <label htmlFor="tos" className="text-sm text-orange-800 cursor-pointer leading-snug">
+                I agree to the{" "}
+                <a href="/legal/terms" target="_blank" className="text-orange-600 font-bold hover:underline">
+                  Terms of Service
+                </a>{" "}
+                and{" "}
+                <a href="/legal/privacy" target="_blank" className="text-orange-600 font-bold hover:underline">
+                  Privacy Policy
+                </a>
+                , and confirm I am at least <strong>18 years old</strong>.
+              </label>
+            </div>
+
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !tosAgreed}
               className="w-full bg-orange-600 text-white py-4 rounded-full font-bold text-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
             >
               {isLoading ? "Creating Account..." : "Sign Up"}

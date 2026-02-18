@@ -72,6 +72,7 @@ export default function LiveChat() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recentMsgIndices = useRef<number[]>([]);
   const supabase = createClient();
 
   const scrollToBottom = () => {
@@ -96,11 +97,11 @@ export default function LiveChat() {
 
     const { data } = await supabase
       .from("users")
-      .select("is_admin")
+      .select("role")
       .eq("id", user.id)
       .single();
 
-    if (data?.is_admin) {
+    if (data?.role === "admin") {
       setIsAdmin(true);
     }
   };
@@ -141,12 +142,18 @@ export default function LiveChat() {
           itemName: item,
         }]);
       } else {
-        // Regular user message
+        // Regular user message — avoid repeating recently used messages
+        let msgIdx: number;
+        do {
+          msgIdx = Math.floor(Math.random() * MOCK_MESSAGES.length);
+        } while (recentMsgIndices.current.includes(msgIdx));
+        recentMsgIndices.current = [...recentMsgIndices.current.slice(-3), msgIdx];
+
         setMessages(prev => [...prev, {
           id: `msg-${Date.now()}`,
           type: "user",
           username: MOCK_USERNAMES[Math.floor(Math.random() * MOCK_USERNAMES.length)],
-          message: MOCK_MESSAGES[Math.floor(Math.random() * MOCK_MESSAGES.length)],
+          message: MOCK_MESSAGES[msgIdx],
           timestamp: new Date(),
         }]);
       }
@@ -172,6 +179,19 @@ export default function LiveChat() {
     e.preventDefault();
     if (!inputValue.trim() || isSending || cooldownRemaining > 0) return;
 
+    const messageText = inputValue;
+    const optimisticId = `optimistic-${Date.now()}`;
+
+    // Show message immediately before waiting for API
+    setMessages(prev => [...prev, {
+      id: optimisticId,
+      type: "user",
+      username: "You",
+      message: messageText,
+      timestamp: new Date(),
+    }]);
+    setInputValue("");
+    setCooldownRemaining(3);
     setIsSending(true);
     setError(null);
 
@@ -180,7 +200,7 @@ export default function LiveChat() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: inputValue,
+          message: messageText,
           type: "user",
         }),
       });
@@ -194,18 +214,12 @@ export default function LiveChat() {
         throw new Error(data.error || "Failed to send message");
       }
 
-      // Add message to local state
-      setMessages(prev => [...prev, {
-        id: data.message.id,
-        user_id: data.message.user_id,
-        type: "user",
-        username: "You",
-        message: inputValue,
-        timestamp: new Date(data.message.created_at),
-      }]);
-
-      setInputValue("");
-      setCooldownRemaining(3); // Set 3-second cooldown
+      // Replace optimistic message with confirmed one from server
+      setMessages(prev => prev.map(msg =>
+        msg.id === optimisticId
+          ? { ...msg, id: data.message.id, user_id: data.message.user_id, timestamp: new Date(data.message.created_at) }
+          : msg
+      ));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send message");
     } finally {
@@ -279,14 +293,6 @@ export default function LiveChat() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-4">
-        <h2 className="text-2xl font-bold text-orange-950 mb-1">Live Chat</h2>
-        <div className="flex items-center gap-2 text-sm text-orange-600">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-          <span className="font-semibold">{MOCK_USERNAMES.length} online</span>
-        </div>
-      </div>
-
       {/* Error Message */}
       {error && (
         <div className="mb-4 bg-red-50 border-2 border-red-200 rounded-xl p-3 flex items-center gap-2 text-red-600">
@@ -296,7 +302,7 @@ export default function LiveChat() {
       )}
 
       {/* Messages Area */}
-      <div className="space-y-3 mb-4">
+      <div className="flex-1 overflow-y-auto min-h-0 space-y-3 mb-4 pr-1">
         {messages.map((msg) => (
           <div key={msg.id} className="animate-slide-in">
             {msg.is_deleted ? (

@@ -1,6 +1,6 @@
 export type RarityTier = "common" | "uncommon" | "rare" | "ultra";
 
-export type InventoryStatus = "kept" | "shipped" | "sold";
+export type InventoryStatus = "kept" | "shipping_requested" | "shipped" | "sold";
 
 export type TransactionType = "topup" | "box_purchase" | "sellback" | "shipping" | "refund";
 
@@ -93,14 +93,14 @@ export interface SellbackResult {
 
 // Rarity odds configuration
 export const RARITY_ODDS = {
-  common: 0.6,
+  common: 0.705,
   uncommon: 0.25,
-  rare: 0.1,
-  ultra: 0.05,
+  rare: 0.04,
+  ultra: 0.005,
 } as const;
 
 // Product configuration
-export const BOX_PRICE = 19.99;
+export const BOX_PRICE = 25;
 export const SHIPPING_FEE = 5.0;
 
 // Rarity colors for UI

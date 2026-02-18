@@ -189,7 +189,7 @@ RETURNS TABLE (
   new_balance DECIMAL(10, 2)
 ) AS $$
 DECLARE
-  v_box_price DECIMAL(10, 2) := 19.99;
+  v_box_price DECIMAL(10, 2) := 25.00;
   v_user_balance DECIMAL(10, 2);
   v_product_id UUID;
   v_product_name TEXT;
@@ -317,17 +317,17 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION select_mystery_box_product()
 RETURNS UUID AS $$
 DECLARE
-  v_random DECIMAL(3, 2);
+  v_random DECIMAL(5, 3);
   v_rarity rarity_tier;
   v_product_id UUID;
 BEGIN
   v_random := RANDOM();
 
-  IF v_random < 0.60 THEN
+  IF v_random < 0.705 THEN
     v_rarity := 'common';
-  ELSIF v_random < 0.85 THEN
+  ELSIF v_random < 0.955 THEN
     v_rarity := 'uncommon';
-  ELSIF v_random < 0.95 THEN
+  ELSIF v_random < 0.995 THEN
     v_rarity := 'rare';
   ELSE
     v_rarity := 'ultra';

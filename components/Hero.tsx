@@ -6,30 +6,32 @@ export default function Hero() {
   return (
     <section className="relative pt-40 pb-20 px-6 z-10 min-h-screen flex flex-col justify-center items-center text-center">
       <div className="max-w-4xl mx-auto relative">
-        <div className="inline-flex items-center gap-2 px-4 py-2 text-white mb-8 animate-float">
-          <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full text-orange-800 mb-8 animate-float">
+          <span className="w-2 h-2 rounded-full bg-orange-600 animate-pulse"></span>
           <span className="text-sm font-semibold tracking-wide uppercase">
             Live Drops Happening Now
           </span>
         </div>
 
-        <h1 className="text-6xl md:text-8xl font-extrabold text-white tracking-tight leading-tight mb-8 drop-shadow-sm">
+        <h1 className="text-6xl md:text-8xl font-extrabold text-orange-950 tracking-tight leading-tight mb-8">
           Unbox the <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-orange-200 italic">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-pink-500 italic inline-block pr-8">
             Unexpected
           </span>
         </h1>
 
-        <p className="text-lg md:text-xl text-orange-50 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-          The mystery box shopping game. Open boxes to win collectibles from your favorite brands like Pop Mart, Sanrio, Disney, and more. Sell them back instantly for cash if they aren&apos;t your vibe.
+        <p className="text-lg md:text-xl text-orange-800 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+          Shopping that feels like play.<br />
+          Open a box, reveal what you got, and keep what you love.<br />
+          Not your vibe? Sell it back instantly for cash.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/box"
-            className="w-full sm:w-auto px-8 py-4 bg-white text-orange-600 rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 bg-orange-600 text-white rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all flex items-center justify-center gap-2"
           >
-            Start Unboxing
+            Play Now
             <ArrowRight weight="bold" />
           </a>
         </div>
@@ -38,7 +40,7 @@ export default function Hero() {
       {/* 3D Box with floating products */}
       <div className="mt-20 relative w-full max-w-lg mx-auto aspect-square md:aspect-video flex items-center justify-center">
         {/* Glow effect */}
-        <div className="absolute inset-0 bg-orange-400 blur-[100px] opacity-40 rounded-full"></div>
+        <div className="absolute inset-0 bg-pink-300 blur-[100px] opacity-20 rounded-full"></div>
 
         {/* Floating product icons */}
         <div className="absolute top-0 right-10 bg-white p-3 rounded-2xl shadow-xl animate-float-slow transform rotate-12 z-20">
@@ -59,7 +61,7 @@ export default function Hero() {
             className="text-9xl text-white drop-shadow-lg group-hover:scale-110 transition-transform duration-300"
           />
           <div className="absolute -bottom-6 bg-white text-orange-600 px-6 py-2 rounded-full font-bold shadow-lg border border-orange-100 transform translate-y-2 group-hover:translate-y-0 transition-transform">
-            $19.99
+            $25
           </div>
         </div>
       </div>

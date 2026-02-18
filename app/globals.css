@@ -1,34 +1,41 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 :root {
-  --background: #FF4D4D;
-  --foreground: #ffffff;
+  /* ============================================================
+     THEME 5 — VARIANT (CREAM + HOT PINK + NEON ORANGE) — active
+     To restore Candy Gradient, swap this block with the backup
+     comment block at the bottom of this file.
+     ============================================================ */
+  --background: #FFFDF5;
+  --foreground: #2D1B22;
 }
 
 @theme inline {
-  /* Colors - Orange/Red Gradient Theme */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-orange-50: #FFF5F0;
-  --color-orange-100: #FFE5D9;
-  --color-orange-200: #FFB088;
-  --color-orange-300: #FF9966;
-  --color-orange-400: #FF7A4D;
-  --color-orange-500: #FF6B4A;
-  --color-orange-600: #FF4D4D;
-  --color-orange-700: #FF3E3E;
-  --color-orange-800: #E63939;
-  --color-orange-900: #CC3333;
-  --color-orange-950: #7C1D20;
+  /* Variant — cream / hot-pink / neon-orange */
+  --color-orange-50:  #FFFDF5;
+  --color-orange-100: #FFE4EE;
+  --color-orange-200: #FFB3D1;
+  --color-orange-300: #FF7AB8;
+  --color-orange-400: #FF5F9E;
+  --color-orange-500: #FF5F1F;
+  --color-orange-600: #FF1493;
+  --color-orange-700: #CC1076;
+  --color-orange-800: #6B1A3E;
+  --color-orange-900: #3D0E23;
+  --color-orange-950: #2D1B22;
 
-  --color-coral-100: #FFE5E0;
-  --color-coral-200: #FFCCC4;
-  --color-coral-500: #FF7A6B;
-  --color-coral-600: #FF5D4A;
+  --color-coral-100: #FFE4EE;
+  --color-coral-200: #FFB3D1;
+  --color-coral-500: #FF5F9E;
+  --color-coral-600: #FF1493;
 
   /* Font */
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Outfit", ui-sans-serif, system-ui, sans-serif;
 
   /* Custom animations */
   --animate-float: float 3.5s ease-in-out infinite;
@@ -89,23 +96,23 @@
 
 /* Glass morphism effects */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 20, 147, 0.15);
 }
 
 .glass-card-white {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 20px 40px -10px rgba(255, 77, 77, 0.15);
+  border: 1px solid rgba(255, 20, 147, 0.2);
+  box-shadow: 0 20px 40px -10px rgba(255, 20, 147, 0.12);
 }
 
-/* Gradient background */
+/* Gradient background — Variant Cream */
 .gradient-bg {
-  background: linear-gradient(180deg, #FF3E3E 0%, #FF6B4A 40%, #FFB088 80%, #FFF5F0 100%);
+  background: linear-gradient(135deg, #FFFDF5 0%, #FFF0F5 50%, #FFE4EE 100%);
   background-size: 100% 100%;
   min-height: 100vh;
   width: 100%;
@@ -115,15 +122,28 @@
   z-index: -1;
 }
 
+/* Subtle pink grid overlay — from variant design */
+.modern-grid {
+  background-image:
+    linear-gradient(rgba(255, 20, 147, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 20, 147, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
 /* Dot pattern */
 .dot-pattern {
-  background-image: radial-gradient(circle, white 2px, transparent 2.5px);
+  background-image: radial-gradient(circle, rgba(255, 20, 147, 0.15) 2px, transparent 2.5px);
   background-size: 12px 12px;
 }
 
 /* Text glow */
 .text-glow {
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  text-shadow: 0 0 20px rgba(255, 20, 147, 0.25);
+}
+
+/* Heading font (Outfit) */
+.heading-font {
+  font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Scrollbar */
@@ -132,11 +152,11 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 20, 147, 0.05);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 20, 147, 0.2);
   border-radius: 10px;
 }
 
@@ -147,7 +167,44 @@ html {
 
 body {
   font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
-  background-color: #FF4D4D;
-  color: white;
+  background-color: #FFFDF5;
+  color: #2D1B22;
   overflow-x: hidden;
 }
+
+/* ============================================================
+   BACKUP — THEME 4: CANDY GRADIENT
+   To restore, replace the :root block and @theme inline block
+   above with these values, and restore gradient-bg below.
+
+   :root {
+     --background: #FF2200;
+     --foreground: #ffffff;
+   }
+
+   @theme inline color palette:
+   --color-orange-50:  #FFF8E8;
+   --color-orange-100: #FFECC0;
+   --color-orange-200: #FFD080;
+   --color-orange-300: #FFAB40;
+   --color-orange-400: #FF8000;
+   --color-orange-500: #FF5500;
+   --color-orange-600: #FF2200;
+   --color-orange-700: #E01000;
+   --color-orange-800: #BB0000;
+   --color-orange-900: #880000;
+   --color-orange-950: #4A0000;
+
+   .gradient-bg {
+     background: linear-gradient(180deg, #880000 0%, #FF1500 28%, #FF6600 60%, #FFAA00 82%, #FFF8E8 100%);
+   }
+
+   body {
+     background-color: #FF2200;
+     color: white;
+   }
+
+   .glass-panel border: 1px solid rgba(255, 255, 255, 0.25)
+   .glass-card-white box-shadow: 0 20px 40px -10px rgba(255, 34, 0, 0.2)
+   .text-glow: text-shadow: 0 0 20px rgba(255, 255, 255, 0.5)
+   ============================================================ */

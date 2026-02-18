@@ -83,20 +83,27 @@ async function handleTopUpCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  // Credit user balance
-  const { error: updateError } = await supabase
-    .from("users")
-    .update({
-      account_balance: supabase.rpc("increment_balance", { amount }),
-    })
-    .eq("id", userId);
+  // Idempotency check: skip if this session was already processed
+  const { data: existing } = await supabase
+    .from("balance_transactions")
+    .select("id")
+    .eq("stripe_session_id", session.id)
+    .single();
 
-  if (updateError) {
-    // Fallback: Direct update with SQL
-    await supabase.rpc("credit_user_balance", {
-      p_user_id: userId,
-      p_amount: amount,
-    });
+  if (existing) {
+    console.log("Webhook already processed, skipping:", session.id);
+    return;
+  }
+
+  // Credit user balance atomically
+  const { error: creditError } = await supabase.rpc("credit_user_balance", {
+    p_user_id: userId,
+    p_amount: amount,
+  });
+
+  if (creditError) {
+    console.error("Failed to credit user balance:", creditError);
+    return;
   }
 
   // Create transaction record
@@ -115,8 +122,6 @@ async function handleTopUpCompleted(session: Stripe.Checkout.Session) {
   }
 
   console.log(`Top-up completed: $${amount} credited to user ${userId}`);
-
-  // TODO: Send confirmation email
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {

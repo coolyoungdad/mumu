@@ -3,9 +3,14 @@ import { redirect } from "next/navigation";
 import {
   Package,
   CurrencyDollar,
-  ShoppingCart,
+  Users,
   TrendUp,
+  ArrowDown,
+  ArrowUp,
+  Warning,
 } from "@phosphor-icons/react/dist/ssr";
+import ShippingQueue from "@/components/admin/ShippingQueue";
+import WithdrawalQueue from "@/components/admin/WithdrawalQueue";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -29,44 +34,108 @@ export default async function AdminDashboard() {
     redirect("/");
   }
 
-  // Fetch inventory data
+  // Fetch inventory data (V2 schema: inventory + products join)
   const { data: inventory } = await supabase
     .from("inventory")
     .select("*, product:products(*)")
     .order("quantity_available", { ascending: true });
 
-  // Fetch recent orders
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("*, order_items(*)")
+  // Fetch recent balance transactions (replaces V1 "orders" table)
+  const { data: recentTransactions } = await supabase
+    .from("balance_transactions")
+    .select("*, user:users(email)")
     .order("created_at", { ascending: false })
-    .limit(10);
+    .limit(20);
 
-  // Calculate stats
-  const totalInventory = inventory?.reduce(
-    (sum, item) => sum + item.quantity_available,
+  // Fetch pending shipping requests
+  const { data: pendingShipments } = await supabase
+    .from("user_inventory")
+    .select("*, user:users(email), product:products(name, sku)")
+    .eq("status", "shipping_requested")
+    .order("acquired_at", { ascending: true });
+
+  // Fetch withdrawal requests (all, ordered newest completed last so pending shows first)
+  const { data: withdrawalRequests } = await supabase
+    .from("withdrawal_requests")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  // Fetch user count
+  const { count: userCount } = await supabase
+    .from("users")
+    .select("*", { count: "exact", head: true });
+
+  // Calculate stats from balance_transactions
+  const topupTransactions = recentTransactions?.filter(
+    (t) => t.type === "topup"
+  ) ?? [];
+  const boxTransactions = recentTransactions?.filter(
+    (t) => t.type === "box_purchase"
+  ) ?? [];
+
+  const totalRevenue = topupTransactions.reduce(
+    (sum, t) => sum + parseFloat(t.amount.toString()),
     0
-  ) || 0;
+  );
 
-  const paidOrders = orders?.filter((o) => o.status === "paid").length || 0;
-  const totalRevenue =
-    orders
-      ?.filter((o) => o.status === "paid")
-      .reduce((sum, o) => sum + parseFloat(o.total_amount.toString()), 0) || 0;
+  const totalInventory =
+    inventory?.reduce((sum, item) => sum + item.quantity_available, 0) ?? 0;
+
+  const lowStockItems = inventory?.filter((i) => i.quantity_available <= 5) ?? [];
 
   return (
     <div className="min-h-screen bg-orange-50">
       {/* Header */}
       <div className="bg-white border-b border-orange-100">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="text-3xl font-bold text-orange-950">Admin Dashboard</h1>
-          <p className="text-orange-600 mt-1">PomPom Inventory & Orders</p>
+        <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-orange-950">
+              Admin Dashboard
+            </h1>
+            <p className="text-orange-600 mt-1">PomPom Operations</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <a
+              href="/admin/metrics"
+              className="text-sm font-medium text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 px-4 py-2 rounded-xl transition-colors"
+            >
+              Metrics
+            </a>
+            <a
+              href="/admin/products"
+              className="text-sm font-medium text-orange-600 hover:text-orange-800 bg-orange-50 hover:bg-orange-100 px-4 py-2 rounded-xl transition-colors"
+            >
+              Products
+            </a>
+            <a
+              href="/"
+              className="text-sm text-orange-600 hover:text-orange-800 underline"
+            >
+              Back to Site
+            </a>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Low Stock Alert */}
+        {lowStockItems.length > 0 && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex items-start gap-3">
+            <Warning weight="fill" className="text-red-500 text-xl flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-red-800">Low Stock Alert</p>
+              <p className="text-sm text-red-700">
+                {lowStockItems.length} product(s) running low:{" "}
+                {lowStockItems
+                  .map((i) => `${i.product.name} (${i.quantity_available} left)`)
+                  .join(", ")}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="bg-white p-6 rounded-2xl border border-orange-100">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -85,18 +154,6 @@ export default async function AdminDashboard() {
 
           <div className="bg-white p-6 rounded-2xl border border-orange-100">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <ShoppingCart weight="fill" className="text-2xl text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-orange-600 font-medium">Paid Orders</p>
-                <p className="text-2xl font-bold text-orange-950">{paidOrders}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-orange-100">
-            <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                 <CurrencyDollar
                   weight="fill"
@@ -104,7 +161,9 @@ export default async function AdminDashboard() {
                 />
               </div>
               <div>
-                <p className="text-sm text-orange-600 font-medium">Revenue</p>
+                <p className="text-sm text-orange-600 font-medium">
+                  Total Top-Ups
+                </p>
                 <p className="text-2xl font-bold text-orange-950">
                   ${totalRevenue.toFixed(2)}
                 </p>
@@ -114,30 +173,64 @@ export default async function AdminDashboard() {
 
           <div className="bg-white p-6 rounded-2xl border border-orange-100">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <TrendUp weight="fill" className="text-2xl text-purple-600" />
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                <TrendUp weight="fill" className="text-2xl text-green-600" />
               </div>
               <div>
                 <p className="text-sm text-orange-600 font-medium">
-                  Avg Order Value
+                  Boxes Opened
                 </p>
                 <p className="text-2xl font-bold text-orange-950">
-                  ${paidOrders > 0 ? (totalRevenue / paidOrders).toFixed(2) : "0.00"}
+                  {boxTransactions.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-orange-100">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Users weight="fill" className="text-2xl text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-orange-600 font-medium">Users</p>
+                <p className="text-2xl font-bold text-orange-950">
+                  {userCount ?? 0}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
+        {/* Pending Shipments — interactive client component */}
+        <ShippingQueue
+          initialItems={(pendingShipments ?? []).map((item) => ({
+            id: item.id,
+            product_name: item.product_name,
+            product_sku: item.product_sku,
+            rarity: item.rarity,
+            acquired_at: item.acquired_at,
+            shipping_address: item.shipping_address as import("@/lib/types/database").ShippingAddress | null,
+            user: item.user as { email?: string } | null,
+          }))}
+        />
+
+        <WithdrawalQueue
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          initialRequests={(withdrawalRequests ?? []) as any}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Inventory Table */}
           <div className="bg-white rounded-2xl border border-orange-100 overflow-hidden">
             <div className="p-6 border-b border-orange-100">
-              <h2 className="text-xl font-bold text-orange-950">Inventory</h2>
+              <h2 className="text-xl font-bold text-orange-950">
+                Inventory ({inventory?.length ?? 0} SKUs)
+              </h2>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-96 overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-orange-50">
+                <thead className="bg-orange-50 sticky top-0">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
                       Product
@@ -148,16 +241,19 @@ export default async function AdminDashboard() {
                     <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
                       Qty
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
+                      Buyback
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-orange-50">
                   {inventory?.map((item) => (
-                    <tr key={item.id}>
+                    <tr key={item.id} className="hover:bg-orange-50">
                       <td className="px-6 py-4">
                         <div className="text-sm font-medium text-orange-950">
                           {item.product.name}
                         </div>
-                        <div className="text-xs text-orange-600">
+                        <div className="text-xs text-orange-500">
                           {item.product.sku}
                         </div>
                       </td>
@@ -178,16 +274,19 @@ export default async function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`font-bold ${
+                          className={`font-bold text-sm ${
                             item.quantity_available <= 5
                               ? "text-red-600"
                               : item.quantity_available <= 10
-                              ? "text-orange-600"
+                              ? "text-orange-500"
                               : "text-green-600"
                           }`}
                         >
                           {item.quantity_available}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-orange-950">
+                        ${parseFloat(item.product.buyback_price).toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -196,54 +295,71 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          {/* Recent Orders */}
+          {/* Recent Transactions */}
           <div className="bg-white rounded-2xl border border-orange-100 overflow-hidden">
             <div className="p-6 border-b border-orange-100">
-              <h2 className="text-xl font-bold text-orange-950">Recent Orders</h2>
+              <h2 className="text-xl font-bold text-orange-950">
+                Recent Transactions
+              </h2>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-96 overflow-y-auto">
               <table className="w-full">
-                <thead className="bg-orange-50">
+                <thead className="bg-orange-50 sticky top-0">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
-                      Order ID
+                      Type
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
-                      Status
+                      User
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
-                      Total
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-orange-600 uppercase">
+                      Date
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-orange-50">
-                  {orders?.map((order) => (
-                    <tr key={order.id}>
-                      <td className="px-6 py-4">
-                        <div className="text-xs font-mono text-orange-950">
-                          {order.id.slice(0, 8)}...
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                            order.status === "paid"
-                              ? "bg-green-100 text-green-800"
-                              : order.status === "shipped"
-                              ? "bg-blue-100 text-blue-800"
-                              : order.status === "cancelled"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-gray-100 text-gray-800"
+                  {recentTransactions?.map((tx) => {
+                    const isCredit = parseFloat(tx.amount.toString()) > 0;
+                    return (
+                      <tr key={tx.id} className="hover:bg-orange-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            {isCredit ? (
+                              <ArrowDown
+                                weight="bold"
+                                className="text-green-500 text-sm"
+                              />
+                            ) : (
+                              <ArrowUp
+                                weight="bold"
+                                className="text-red-400 text-sm"
+                              />
+                            )}
+                            <span className="text-xs font-bold capitalize text-orange-950">
+                              {tx.type.replace("_", " ")}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-xs text-orange-700 truncate max-w-[120px]">
+                          {(tx.user as { email?: string })?.email ?? "—"}
+                        </td>
+                        <td
+                          className={`px-6 py-4 text-sm font-bold ${
+                            isCredit ? "text-green-600" : "text-red-500"
                           }`}
                         >
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm font-bold text-orange-950">
-                        ${parseFloat(order.total_amount.toString()).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
+                          {isCredit ? "+" : ""}$
+                          {Math.abs(parseFloat(tx.amount.toString())).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 text-xs text-orange-500">
+                          {new Date(tx.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

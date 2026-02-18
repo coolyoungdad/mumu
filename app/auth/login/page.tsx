@@ -54,7 +54,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <button
             onClick={() => router.push("/")}
-            className="text-white hover:text-orange-200 transition-colors mb-4"
+            className="text-orange-800 hover:text-orange-600 transition-colors mb-4"
           >
             ← Back to Home
           </button>

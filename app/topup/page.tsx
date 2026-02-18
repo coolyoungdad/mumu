@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { CurrencyDollar, Sparkle } from "@phosphor-icons/react/dist/ssr";
+import { CurrencyDollar, Sparkle, Gift } from "@phosphor-icons/react/dist/ssr";
 import Navbar from "@/components/Navbar";
 
 const TOPUP_AMOUNTS = [
@@ -21,6 +21,7 @@ export default function TopUpPage() {
   const [customAmount, setCustomAmount] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isRefilling, setIsRefilling] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,6 +53,22 @@ export default function TopUpPage() {
     }
 
     setIsLoading(false);
+  };
+
+  const handleDemoRefill = async () => {
+    setIsRefilling(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/demo/refill", { method: "POST" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to refill");
+      setBalance(data.balance);
+      window.dispatchEvent(new CustomEvent("balance-updated", { detail: { balance: data.balance } }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to refill");
+    } finally {
+      setIsRefilling(false);
+    }
   };
 
   const handleTopUp = async () => {
@@ -98,7 +115,7 @@ export default function TopUpPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-white text-xl">Loading...</div>
+        <div className="text-orange-950 text-xl">Loading...</div>
       </div>
     );
   }
@@ -111,12 +128,31 @@ export default function TopUpPage() {
       <div className="relative z-10 max-w-2xl mx-auto px-6 py-20 mt-20">
         <button
           onClick={() => router.push("/profile")}
-          className="text-white hover:text-orange-200 transition-colors mb-8"
+          className="text-orange-800 hover:text-orange-600 transition-colors mb-8"
         >
           ← Back to Profile
         </button>
 
         <div className="glass-card-white p-12 rounded-3xl">
+
+          {/* Demo Mode Banner */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 mb-8">
+            <div className="flex items-center gap-3 mb-3">
+              <Gift weight="fill" className="text-2xl text-green-600 flex-shrink-0" />
+              <div>
+                <div className="font-bold text-green-900">Demo Mode — Free Credits!</div>
+                <div className="text-sm text-green-700">Running low? Refill your balance instantly for free.</div>
+              </div>
+            </div>
+            <button
+              onClick={handleDemoRefill}
+              disabled={isRefilling}
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold text-base transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isRefilling ? "Refilling..." : "🎁 Get $500 Demo Credits"}
+            </button>
+          </div>
+
           <div className="text-center mb-8">
             <Sparkle
               weight="fill"
@@ -218,16 +254,24 @@ export default function TopUpPage() {
           )}
 
           {/* Submit Button */}
-          <button
-            onClick={handleTopUp}
-            disabled={isProcessing || finalAmount < 5}
-            className="w-full bg-orange-600 text-white py-4 rounded-full font-bold text-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
-          >
-            {isProcessing ? "Processing..." : `Add $${finalAmount.toFixed(2)}`}
-          </button>
+          {process.env.NEXT_PUBLIC_DEMO_MODE === "true" ? (
+            <div className="w-full bg-orange-100 text-orange-400 py-4 rounded-full font-bold text-lg text-center cursor-not-allowed border-2 border-dashed border-orange-200">
+              Real payments disabled in demo
+            </div>
+          ) : (
+            <button
+              onClick={handleTopUp}
+              disabled={isProcessing || finalAmount < 5}
+              className="w-full bg-orange-600 text-white py-4 rounded-full font-bold text-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+            >
+              {isProcessing ? "Processing..." : `Add $${finalAmount.toFixed(2)}`}
+            </button>
+          )}
 
           <p className="text-xs text-center text-orange-600 mt-4">
-            Secure payment powered by Stripe
+            {process.env.NEXT_PUBLIC_DEMO_MODE === "true"
+              ? "Use the Demo Credits button above to add balance"
+              : "Secure payment powered by Stripe"}
           </p>
         </div>
       </div>

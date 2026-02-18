@@ -51,7 +51,7 @@ export default function CheckoutPage() {
         {/* Back button */}
         <button
           onClick={() => router.push("/")}
-          className="mb-8 text-white hover:text-orange-200 transition-colors flex items-center gap-2"
+          className="mb-8 text-orange-800 hover:text-orange-600 transition-colors flex items-center gap-2"
         >
           ← Back to Home
         </button>

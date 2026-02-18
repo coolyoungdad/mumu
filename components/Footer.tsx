@@ -9,9 +9,9 @@ const footerLinks = {
     { label: "Marketplace", href: "#" },
   ],
   support: [
-    { label: "Fairness", href: "#" },
-    { label: "FAQ", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Odds Disclosure", href: "/legal/odds" },
+    { label: "Terms of Service", href: "/legal/terms" },
+    { label: "Privacy Policy", href: "/legal/privacy" },
   ],
 };
 
@@ -89,11 +89,14 @@ export default function Footer() {
         <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400 font-medium">
           <p>© 2024 PomPom Inc. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-orange-600">
+            <a href="/legal/privacy" className="hover:text-orange-600">
               Privacy
             </a>
-            <a href="#" className="hover:text-orange-600">
+            <a href="/legal/terms" className="hover:text-orange-600">
               Terms
+            </a>
+            <a href="/legal/odds" className="hover:text-orange-600">
+              Odds
             </a>
           </div>
         </div>

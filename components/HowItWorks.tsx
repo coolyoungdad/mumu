@@ -6,9 +6,9 @@ const steps = [
   {
     number: 1,
     icon: Cube,
-    title: "Pick a Box",
+    title: "Open a Box",
     description:
-      "Browse mystery boxes filled with collectibles from brands you love. Every box guarantees value.",
+      "Browse collectible boxes from brands you love. Thoughtfully priced, always fun to open.",
     featured: {
       category: "Featured",
       title: "Mystery Box",
@@ -20,7 +20,7 @@ const steps = [
     icon: Sparkle,
     title: "Reveal & Win",
     description:
-      "Open it instantly. Every box contains a real collectible, often worth way more than you paid.",
+      "Open it instantly. Every box contains a real collectible.",
     animation: "You got The Joy Skullpanda!",
   },
   {
@@ -42,8 +42,7 @@ export default function HowItWorks() {
             How PomPom Works
           </h2>
           <p className="text-xl text-orange-800 max-w-2xl mx-auto">
-            No junk. No losing. Just top-tier mystery boxes with guaranteed value
-            and instant sell-back.
+            No junk. Only high-quality pulls with guaranteed value and instant cash-out.
           </p>
         </div>
 

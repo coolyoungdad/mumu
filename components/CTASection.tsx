@@ -17,14 +17,13 @@ export default function CTASection() {
             Create a Free Account
           </h2>
           <p className="text-xl text-orange-50 max-w-2xl mx-auto mb-10">
-            Start opening mystery boxes today and discover your favorite collectibles.
-            Instant buyback on every item — no risk, all reward.
+            Start opening today and discover your favorite collectibles. Instant buyback on every item. Make your shopping feel like play.
           </p>
 
           <div className="mt-12">
-            <button className="bg-white text-orange-600 px-10 py-4 rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all shadow-lg">
+            <a href="/auth/signup" className="inline-block bg-white text-orange-600 px-10 py-4 rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all shadow-lg">
               Create Free Account
-            </button>
+            </a>
             <p className="mt-4 text-sm text-orange-100 opacity-80">
               No credit card required to browse
             </p>

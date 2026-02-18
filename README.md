@@ -282,3 +282,4 @@ Handles Stripe webhook events (checkout.session.completed, payment intents).
 ## License
 
 © 2024 PomPom Inc. All rights reserved.
+

@@ -2,7 +2,7 @@ export type RarityTier = "common" | "uncommon" | "rare" | "ultra";
 
 export type InventoryStatus = "kept" | "shipping_requested" | "shipped" | "sold";
 
-export type TransactionType = "topup" | "box_purchase" | "sellback" | "shipping" | "refund";
+export type TransactionType = "topup" | "box_purchase" | "sellback" | "shipping" | "refund" | "box_shake";
 
 export type UserRole = "user" | "admin";
 
@@ -77,9 +77,9 @@ export interface BoxOpenResult {
   message: string;
   product_id?: string;
   product_name?: string;
-  product_sku?: string;
   rarity?: RarityTier;
   buyback_price?: number;
+  resale_value?: number;
   inventory_item_id?: string;
   new_balance?: number;
 }
@@ -101,6 +101,7 @@ export const RARITY_ODDS = {
 
 // Product configuration
 export const BOX_PRICE = 25;
+export const SHAKE_PRICE = 1.49;
 export const SHIPPING_FEE = 5.0;
 
 // Rarity colors for UI

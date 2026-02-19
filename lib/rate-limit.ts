@@ -73,3 +73,10 @@ export async function checkTopupLimit(userId: string): Promise<LimitResult> {
   if (!_topupLimiter) _topupLimiter = await createLimiter(60, 5);
   return _topupLimiter.limit(`topup:${userId}`);
 }
+
+// Shake: 5 per minute per user
+let _shakeLimiter: Awaited<ReturnType<typeof createLimiter>> | null = null;
+export async function checkShakeLimit(userId: string): Promise<LimitResult> {
+  if (!_shakeLimiter) _shakeLimiter = await createLimiter(60, 5);
+  return _shakeLimiter.limit(`shake:${userId}`);
+}

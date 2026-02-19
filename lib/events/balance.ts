@@ -3,7 +3,7 @@ export const BALANCE_UPDATE_EVENT = 'pompom:balance:update';
 
 export interface BalanceUpdateDetail {
   newBalance: number;
-  source: 'box_open' | 'sellback' | 'topup' | 'shipping' | 'initial_load' | 'withdrawal';
+  source: 'box_open' | 'sellback' | 'topup' | 'shipping' | 'initial_load' | 'withdrawal' | 'shake';
 }
 
 // Dispatch balance update event

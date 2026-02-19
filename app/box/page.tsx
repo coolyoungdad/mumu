@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -9,15 +9,17 @@ import {
   ArrowsClockwise,
   ListBullets,
   ChatCircleDots,
+  Shuffle,
 } from "@phosphor-icons/react/dist/ssr";
-import { BOX_PRICE, RARITY_COLORS, type RarityTier } from "@/lib/types/database";
+import { BOX_PRICE, SHAKE_PRICE, RARITY_COLORS, type RarityTier } from "@/lib/types/database";
 import { dispatchBalanceUpdate } from "@/lib/events/balance";
+import { track } from "@/lib/analytics";
 import Navbar from "@/components/Navbar";
 import BoxContents from "@/components/BoxContents";
 import ItemDetailModal from "@/components/ItemDetailModal";
 import LiveChat from "@/components/LiveChat";
 
-type OpenState = "idle" | "opening" | "splash" | "revealing" | "decided";
+type OpenState = "idle" | "shaking" | "opening" | "splash" | "revealing" | "decided";
 
 interface RevealedItem {
   id: string;
@@ -28,20 +30,79 @@ interface RevealedItem {
   inventory_item_id: string;
 }
 
+// localStorage helpers
+const SHAKE_STORAGE_KEY = "pompom_shake_state";
+const SHAKE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+interface ShakeState {
+  eliminated_ids: string[];
+  idempotency_key: string;
+  ts: number;
+}
+
+function loadShakeState(): ShakeState | null {
+  try {
+    const raw = localStorage.getItem(SHAKE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed: ShakeState = JSON.parse(raw);
+    if (Date.now() - parsed.ts > SHAKE_TTL_MS) {
+      localStorage.removeItem(SHAKE_STORAGE_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveShakeState(state: ShakeState) {
+  localStorage.setItem(SHAKE_STORAGE_KEY, JSON.stringify(state));
+}
+
+function clearShakeState() {
+  localStorage.removeItem(SHAKE_STORAGE_KEY);
+}
+
 export default function BoxOpeningPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string } | null>(null);
   const [balance, setBalance] = useState<number>(0);
   const [openState, setOpenState] = useState<OpenState>("idle");
   const [revealedItem, setRevealedItem] = useState<RevealedItem | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<{ name: string; rarity: RarityTier; buybackMin: number; buybackMax: number; brand: string; stock: number } | null>(null);
   const [countdown, setCountdown] = useState(3);
+
+  // Shake state
+  const [eliminatedIds, setEliminatedIds] = useState<string[]>([]);
+  const [isShaking, setIsShaking] = useState(false);
+  const [shakeError, setShakeError] = useState<string | null>(null);
+
+  const [mobilePanel, setMobilePanel] = useState<"none" | "contents" | "chat">("none");
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  // Restore shake state from localStorage on mount
+  useEffect(() => {
+    const saved = loadShakeState();
+    if (saved) {
+      setEliminatedIds(saved.eliminated_ids);
+    }
+  }, []);
+
+  // Track shake abandonment when user navigates away with active shake state
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (eliminatedIds.length > 0) {
+        track({ event: "shake_abandoned" });
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [eliminatedIds]);
 
   const checkAuth = async () => {
     const supabase = createClient();
@@ -63,6 +124,62 @@ export default function BoxOpeningPage() {
     setIsLoading(false);
   };
 
+  const handleShake = useCallback(async () => {
+    if (!user) {
+      router.push("/auth/login?redirect=/box");
+      return;
+    }
+    if (isShaking) return;
+
+    track({ event: "shake_initiated" });
+    setShakeError(null);
+    setIsShaking(true);
+    setOpenState("shaking");
+
+    // Generate a fresh idempotency key for this shake attempt
+    const idempotency_key = crypto.randomUUID();
+
+    try {
+      const response = await fetch("/api/box/shake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idempotency_key }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to shake");
+      }
+
+      const newIds: string[] = data.eliminated_product_ids ?? [];
+      setEliminatedIds(newIds);
+      setBalance(data.new_balance);
+      dispatchBalanceUpdate(data.new_balance, "shake");
+
+      if (!data.already_charged && newIds.length > 0) {
+        saveShakeState({ eliminated_ids: newIds, idempotency_key, ts: Date.now() });
+        track({
+          event: "shake_charged",
+          properties: { eliminated_count: data.eliminated_count, new_balance: data.new_balance },
+        });
+      }
+    } catch (err) {
+      setShakeError(err instanceof Error ? err.message : "Failed to shake");
+      track({ event: "shake_abandoned" });
+    } finally {
+      setIsShaking(false);
+      setOpenState("idle");
+    }
+  }, [user, isShaking, router]);
+
+  const handleFreshBox = useCallback(() => {
+    track({ event: "fresh_box_requested" });
+    clearShakeState();
+    setEliminatedIds([]);
+    setShakeError(null);
+  }, []);
+
   const handleOpenBox = async () => {
     if (!user) {
       router.push("/auth/login?redirect=/box");
@@ -79,9 +196,13 @@ export default function BoxOpeningPage() {
     setCountdown(1);
     await new Promise((resolve) => setTimeout(resolve, 800));
 
+    const hadShake = eliminatedIds.length > 0;
+
     try {
       const response = await fetch("/api/box/open", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ excluded_ids: eliminatedIds }),
       });
 
       const data = await response.json();
@@ -90,7 +211,7 @@ export default function BoxOpeningPage() {
         throw new Error(data.error || "Failed to open box");
       }
 
-      const item = {
+      const item: RevealedItem = {
         id: data.product.id,
         name: data.product.name,
         sku: data.product.sku,
@@ -101,6 +222,19 @@ export default function BoxOpeningPage() {
       setRevealedItem(item);
       setBalance(data.new_balance);
       dispatchBalanceUpdate(data.new_balance, "box_open");
+
+      // Track open event
+      if (hadShake) {
+        track({
+          event: "box_opened_after_shake",
+          properties: { rarity: item.rarity, product_name: item.name, new_balance: data.new_balance },
+        });
+      } else {
+        track({
+          event: "box_opened_no_shake",
+          properties: { rarity: item.rarity, product_name: item.name, new_balance: data.new_balance },
+        });
+      }
 
       setOpenState("splash");
 
@@ -133,8 +267,18 @@ export default function BoxOpeningPage() {
         throw new Error(data.error || "Failed to sell back");
       }
 
+      track({
+        event: "item_sold_back",
+        properties: { rarity: revealedItem.rarity, buyback_price: revealedItem.buyback_price },
+      });
+
       setBalance(data.new_balance);
       dispatchBalanceUpdate(data.new_balance, "sellback");
+
+      // Clear shake state now that the user has made a decision
+      clearShakeState();
+      setEliminatedIds([]);
+
       setOpenState("decided");
 
       setTimeout(() => {
@@ -147,6 +291,13 @@ export default function BoxOpeningPage() {
   };
 
   const handleKeep = () => {
+    if (!revealedItem) return;
+    track({ event: "item_kept", properties: { rarity: revealedItem.rarity } });
+
+    // Clear shake state now that the user has made a decision
+    clearShakeState();
+    setEliminatedIds([]);
+
     setOpenState("decided");
 
     setTimeout(() => {
@@ -156,7 +307,8 @@ export default function BoxOpeningPage() {
   };
 
   const canAffordBox = balance >= BOX_PRICE;
-  const [mobilePanel, setMobilePanel] = useState<"none" | "contents" | "chat">("none");
+  const canAffordShake = balance >= SHAKE_PRICE;
+  const hasShake = eliminatedIds.length > 0;
 
   if (isLoading) {
     return (
@@ -185,7 +337,7 @@ export default function BoxOpeningPage() {
               </h3>
             </div>
             <div className="overflow-y-auto flex-1 p-3">
-              <BoxContents onItemClick={setSelectedItem} />
+              <BoxContents onItemClick={setSelectedItem} eliminatedIds={eliminatedIds} />
             </div>
           </div>
         </div>
@@ -194,7 +346,7 @@ export default function BoxOpeningPage() {
         <div className="flex-1 flex flex-col items-center justify-center py-8 min-w-0">
 
           {/* Idle State */}
-          {openState === "idle" && (
+          {(openState === "idle" || openState === "shaking") && (
             <div className="text-center max-w-lg mx-auto w-full animate-[fadeIn_0.5s_ease-out]">
               <h1 className="text-5xl font-bold text-orange-950 mb-4">
                 Blind Box
@@ -205,38 +357,87 @@ export default function BoxOpeningPage() {
 
               {/* The Box */}
               <div className="relative w-56 h-56 mx-auto mb-6">
-                <div className="absolute inset-0 bg-orange-400 blur-[80px] opacity-50 rounded-full animate-pulse-glow"></div>
-                <div className="relative w-full h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-600 rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-all duration-300 border-4 border-white/30 cursor-pointer group">
+                <div className={`absolute inset-0 blur-[80px] opacity-50 rounded-full animate-pulse-glow ${hasShake ? "bg-purple-400" : "bg-orange-400"}`}></div>
+                <div className={`relative w-full h-full bg-gradient-to-br rounded-3xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-all duration-300 border-4 border-white/30 cursor-pointer group ${
+                  hasShake
+                    ? "from-purple-400 via-purple-500 to-indigo-600"
+                    : "from-orange-400 via-orange-500 to-red-600"
+                }`}>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-3xl"></div>
-                  <Package weight="fill" className="text-[130px] text-white drop-shadow-2xl relative z-10 group-hover:scale-110 transition-transform" />
+                  {isShaking ? (
+                    <Shuffle weight="fill" className="text-[130px] text-white drop-shadow-2xl relative z-10 animate-[wiggle_0.15s_ease-in-out_infinite]" />
+                  ) : (
+                    <Package weight="fill" className="text-[130px] text-white drop-shadow-2xl relative z-10 group-hover:scale-110 transition-transform" />
+                  )}
                 </div>
               </div>
 
-              {/* Price and Open Button */}
+              {/* Price and Buttons */}
               <div className="bg-white rounded-2xl p-5 mb-4 border border-orange-100 shadow-md">
                 <div className="flex justify-between items-center mb-5">
                   <span className="text-base font-semibold text-orange-950">Box Price:</span>
                   <span className="text-3xl font-bold text-orange-600">${BOX_PRICE.toFixed(2)}</span>
                 </div>
 
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 mb-5 text-sm">
-                    {error}
+                {/* Shake result message */}
+                {hasShake && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-3 mb-4">
+                    <p className="text-sm font-bold text-purple-700 text-center mb-2">
+                      🎲 {eliminatedIds.length} items eliminated — check the list!
+                    </p>
+                    <button
+                      onClick={handleFreshBox}
+                      className="w-full bg-white border-2 border-purple-300 text-purple-700 px-4 py-2 rounded-xl font-bold text-sm hover:bg-purple-100 transition-all"
+                    >
+                      ↺ Try a fresh box
+                    </button>
                   </div>
                 )}
 
+                {(error || shakeError) && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 mb-5 text-sm">
+                    {error || shakeError}
+                  </div>
+                )}
+
+                {/* Open Button */}
                 <button
                   onClick={handleOpenBox}
-                  disabled={!!user && !canAffordBox}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-3"
+                  disabled={(!!user && !canAffordBox) || openState === "shaking"}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-3 mb-3"
                 >
                   <Sparkle weight="fill" className="text-xl" />
-                  {user ? "Open Now!" : "Sign Up to Open"}
+                  {user ? (hasShake ? "Open This Box!" : "Open Now!") : "Sign Up to Open"}
                 </button>
+
+                {/* Shake Button */}
+                {user && !hasShake && (
+                  <button
+                    onClick={handleShake}
+                    disabled={!canAffordShake || isShaking}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-10 py-3 rounded-xl font-bold text-sm hover:from-purple-600 hover:to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-purple-500/30 hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    <Shuffle weight="fill" className="text-base" />
+                    {isShaking ? "Shaking..." : `Shake this box — $${SHAKE_PRICE.toFixed(2)}`}
+                  </button>
+                )}
+
+                {/* Shake help text */}
+                {user && !hasShake && (
+                  <p className="text-center text-xs text-orange-400 mt-2">
+                    Shake to eliminate half the possibilities — then decide.
+                  </p>
+                )}
 
                 {user && !canAffordBox && (
                   <p className="text-red-500 mt-3 font-medium text-sm">
                     Insufficient balance. Please top up your account.
+                  </p>
+                )}
+
+                {user && !hasShake && !canAffordShake && canAffordBox && (
+                  <p className="text-orange-400 mt-2 text-xs text-center">
+                    Need ${SHAKE_PRICE.toFixed(2)} to shake.
                   </p>
                 )}
               </div>
@@ -464,7 +665,10 @@ export default function BoxOpeningPage() {
             </div>
             <div className={`flex-1 p-3 ${mobilePanel === "contents" ? "overflow-y-auto" : "overflow-hidden flex flex-col min-h-0"}`}>
               {mobilePanel === "contents" ? (
-                <BoxContents onItemClick={(item) => { setSelectedItem(item); setMobilePanel("none"); }} />
+                <BoxContents
+                  onItemClick={(item) => { setSelectedItem(item); setMobilePanel("none"); }}
+                  eliminatedIds={eliminatedIds}
+                />
               ) : (
                 <LiveChat />
               )}
@@ -490,6 +694,10 @@ export default function BoxOpeningPage() {
             opacity: 0;
             transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1.5);
           }
+        }
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-8deg) translateX(-4px); }
+          50% { transform: rotate(8deg) translateX(4px); }
         }
       `}</style>
     </div>

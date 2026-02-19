@@ -11,6 +11,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import ShippingQueue from "@/components/admin/ShippingQueue";
 import WithdrawalQueue from "@/components/admin/WithdrawalQueue";
+import InventoryAlerts from "@/components/admin/InventoryAlerts";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -118,21 +119,8 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        {/* Low Stock Alert */}
-        {lowStockItems.length > 0 && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex items-start gap-3">
-            <Warning weight="fill" className="text-red-500 text-xl flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-red-800">Low Stock Alert</p>
-              <p className="text-sm text-red-700">
-                {lowStockItems.length} product(s) running low:{" "}
-                {lowStockItems
-                  .map((i) => `${i.product.name} (${i.quantity_available} left)`)
-                  .join(", ")}
-              </p>
-            </div>
-          </div>
-        )}
+        {/* Inventory Alerts - Enhanced with detailed tracking */}
+        <InventoryAlerts />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

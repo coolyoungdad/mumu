@@ -52,6 +52,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get user's current balance to determine shipping fee
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("account_balance")
+      .eq("id", user.id)
+      .single();
+
+    if (userError || !userData) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const currentBalance = userData.account_balance;
+
+    // Calculate shipping fee: $5 if balance < $50, free if >= $50
+    const shippingFee = currentBalance >= 50 ? 0 : 5.00;
+
+    // Check if user can afford shipping
+    if (shippingFee > 0 && currentBalance < shippingFee) {
+      return NextResponse.json(
+        {
+          error: `Insufficient balance for shipping. $${shippingFee.toFixed(2)} required, you have $${currentBalance.toFixed(2)}`,
+        },
+        { status: 402 }
+      );
+    }
+
     // Verify this item belongs to the user and is in 'kept' status
     const { data: item, error: itemError } = await supabase
       .from("user_inventory")
@@ -71,11 +97,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update item: store address and mark as shipping_requested
+    // Deduct shipping fee from balance (if applicable)
+    if (shippingFee > 0) {
+      const { error: balanceError } = await supabase
+        .from("users")
+        .update({ account_balance: currentBalance - shippingFee })
+        .eq("id", user.id);
+
+      if (balanceError) {
+        console.error("Balance deduction error:", balanceError);
+        return NextResponse.json(
+          { error: "Failed to process shipping fee" },
+          { status: 500 }
+        );
+      }
+
+      // Record shipping fee transaction
+      await supabase.from("balance_transactions").insert({
+        user_id: user.id,
+        amount: -shippingFee,
+        type: "box_purchase", // Reuse existing type for fees
+        description: "Shipping fee",
+        related_inventory_id: inventory_item_id,
+      });
+    }
+
+    // Update item: store address, shipping fee, and mark as shipping_requested
     const { error: updateError } = await supabase
       .from("user_inventory")
       .update({
         status: "shipping_requested",
+        shipping_fee: shippingFee,
         shipping_address: {
           name: address.name.trim(),
           line1: address.line1.trim(),
@@ -98,10 +150,14 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(
-      `Shipping requested: ${item.product_name} → ${address.name}, ${address.city}, ${address.state}`
+      `Shipping requested: ${item.product_name} → ${address.name}, ${address.city}, ${address.state} (fee: $${shippingFee.toFixed(2)})`
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      shipping_fee: shippingFee,
+      new_balance: currentBalance - shippingFee,
+    });
   } catch (error) {
     console.error("Shipping request error:", error);
     return NextResponse.json(

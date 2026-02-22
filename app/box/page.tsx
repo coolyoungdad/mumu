@@ -31,7 +31,7 @@ interface RevealedItem {
 }
 
 // localStorage helpers
-const SHAKE_STORAGE_KEY = "pompom_shake_state";
+const SHAKE_STORAGE_KEY = "mumu_shake_state";
 const SHAKE_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
 interface ShakeState {

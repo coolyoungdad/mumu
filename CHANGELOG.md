@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to PomPom will be documented in this file.
+All notable changes to MuMu will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -272,11 +272,11 @@ ORDER BY
 2. **Run Database Migrations** (Sequential Order)
    ```bash
    # Step 1: Run migration 007 (sellback + shipping)
-   # Copy pompom/supabase/migrations/007_sellback_inventory_restore.sql
+   # Copy mumu/supabase/migrations/007_sellback_inventory_restore.sql
    # Paste into Supabase SQL Editor → Run
 
    # Step 2: Run migration 008 (probability update)
-   # Copy pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql
+   # Copy mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql
    # Paste into Supabase SQL Editor → Run
 
    # Step 3: Verify both migrations succeeded

@@ -77,7 +77,7 @@ export default function Navbar() {
             <div className="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center text-white">
               <Sparkle weight="fill" className="text-xl" />
             </div>
-            <span className="font-bold text-xl tracking-tight">PomPom</span>
+            <span className="font-bold text-xl tracking-tight">MuMu</span>
           </a>
 
           {!isLoading && (

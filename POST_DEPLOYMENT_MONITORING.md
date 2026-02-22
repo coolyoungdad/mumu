@@ -1,5 +1,5 @@
 # Post-Deployment Monitoring Plan
-## PomPom v2.0 (60/30/9/1 Distribution)
+## MuMu v2.0 (60/30/9/1 Distribution)
 
 **Purpose:** Track actual performance vs projections, identify issues early, make go/no-go decision after 30 days.
 
@@ -277,7 +277,7 @@ FROM sellback_stats;
 **Manual tracking (no automated analytics yet):**
 
 1. **Social Media Mentions**
-   - Search Twitter for "pompom mystery box" weekly
+   - Search Twitter for "mumu mystery box" weekly
    - Count unique mentions: _____
    - Track sentiment (positive/neutral/negative)
    - Note any viral posts (>1,000 likes)

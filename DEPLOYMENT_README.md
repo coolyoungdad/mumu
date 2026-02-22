@@ -1,4 +1,4 @@
-# 🎲 PomPom v2.0 Deployment Package
+# 🎲 MuMu v2.0 Deployment Package
 
 **Everything you need to deploy the 60/30/9/1 probability distribution update.**
 
@@ -285,30 +285,30 @@ The downside is **LIMITED** (can rollback in <1 hour).
 
 ### Database Migrations
 ```
-pompom/supabase/migrations/
+mumu/supabase/migrations/
 ├── 007_sellback_inventory_restore.sql     [READY]
 └── 008_update_probabilities_60_30_9_1.sql [READY]
 ```
 
 ### Code Changes
 ```
-pompom/app/api/
+mumu/app/api/
 ├── shipping/request/route.ts              [MODIFIED]
 └── admin/inventory-alerts/route.ts        [NEW]
 
-pompom/components/admin/
+mumu/components/admin/
 └── InventoryAlerts.tsx                    [NEW]
 
-pompom/app/admin/
+mumu/app/admin/
 └── page.tsx                               [MODIFIED]
 
-pompom/supabase/
+mumu/supabase/
 └── seed-v2.sql                            [MODIFIED]
 ```
 
 ### Documentation
 ```
-pompom/
+mumu/
 ├── DEPLOYMENT_GUIDE.md                    [NEW - 30+ pages]
 ├── PRE_DEPLOYMENT_CHECKLIST.md            [NEW - Printable]
 ├── POST_DEPLOYMENT_MONITORING.md          [NEW - Weekly tracking]

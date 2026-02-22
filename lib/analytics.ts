@@ -1,5 +1,5 @@
 /**
- * Analytics wrapper for PomPom.
+ * Analytics wrapper for MuMu.
  *
  * Uses PostHog when NEXT_PUBLIC_POSTHOG_KEY is configured.
  * Falls back to console logging in local development.

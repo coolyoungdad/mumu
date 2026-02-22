@@ -8,7 +8,7 @@ export default function PrivacyPage() {
         <div className="prose prose-orange max-w-none space-y-8 text-orange-900">
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">1. Information We Collect</h2>
-            <p>We collect the following information when you use PomPom:</p>
+            <p>We collect the following information when you use MuMu:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li><strong>Account data:</strong> Email address and encrypted password</li>
               <li><strong>Transaction data:</strong> Balance top-ups, box openings, sellbacks, and shipping requests</li>
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-bold text-orange-950 mb-3">2. How We Use Your Information</h2>
             <p>We use your information to:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
-              <li>Operate and provide the PomPom service</li>
+              <li>Operate and provide the MuMu service</li>
               <li>Process payments and fulfill shipping requests</li>
               <li>Communicate with you about your account and orders</li>
               <li>Detect and prevent fraud and abuse</li>
@@ -58,12 +58,12 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">7. Your Rights</h2>
-            <p>Depending on your location, you may have rights to access, correct, delete, or port your personal data. To exercise these rights, contact us at <a href="mailto:support@pompom.shop" className="text-orange-600 hover:underline">support@pompom.shop</a>. We will respond within 30 days.</p>
+            <p>Depending on your location, you may have rights to access, correct, delete, or port your personal data. To exercise these rights, contact us at <a href="mailto:support@mumu.shop" className="text-orange-600 hover:underline">support@mumu.shop</a>. We will respond within 30 days.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">8. Children's Privacy</h2>
-            <p>PomPom is not intended for users under 18. We do not knowingly collect data from minors. If you believe a minor has created an account, contact us and we will delete it.</p>
+            <p>MuMu is not intended for users under 18. We do not knowingly collect data from minors. If you believe a minor has created an account, contact us and we will delete it.</p>
           </section>
 
           <section>
@@ -73,12 +73,12 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">10. Contact</h2>
-            <p>For privacy questions: <a href="mailto:support@pompom.shop" className="text-orange-600 hover:underline">support@pompom.shop</a></p>
+            <p>For privacy questions: <a href="mailto:support@mumu.shop" className="text-orange-600 hover:underline">support@mumu.shop</a></p>
           </section>
         </div>
 
         <div className="mt-12 pt-8 border-t border-orange-200">
-          <a href="/" className="text-orange-600 hover:underline text-sm">← Back to PomPom</a>
+          <a href="/" className="text-orange-600 hover:underline text-sm">← Back to MuMu</a>
         </div>
       </div>
     </div>

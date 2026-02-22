@@ -1,5 +1,5 @@
 // Balance update event for cross-component communication
-export const BALANCE_UPDATE_EVENT = 'pompom:balance:update';
+export const BALANCE_UPDATE_EVENT = 'mumu:balance:update';
 
 export interface BalanceUpdateDetail {
   newBalance: number;

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
             currency: "usd",
             product_data: {
               name: "Account Balance Top-Up",
-              description: `Add $${amount.toFixed(2)} to your PomPom account`,
+              description: `Add $${amount.toFixed(2)} to your MuMu account`,
             },
             unit_amount: Math.round(amount * 100), // Convert to cents
           },

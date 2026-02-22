@@ -1,6 +1,6 @@
 # Chat Moderation System
 
-PomPom includes a comprehensive chat moderation system to keep the community safe and friendly.
+MuMu includes a comprehensive chat moderation system to keep the community safe and friendly.
 
 ## Features
 

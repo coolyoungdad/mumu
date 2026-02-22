@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "PomPom Mystery Box",
+              name: "MuMu Mystery Box",
               description: "One curated mystery item from top brands",
               images: ["https://your-domain.com/mystery-box.jpg"], // TODO: Replace with actual image
             },

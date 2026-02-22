@@ -44,7 +44,7 @@ export default function OddsPage() {
         <h1 className="text-4xl font-bold text-orange-950 mb-2">Odds Disclosure</h1>
         <p className="text-orange-500 mb-4">Last updated: February 2026</p>
         <p className="text-orange-700 mb-10">
-          Every PomPom mystery box is <strong>$25</strong> and contains one randomly selected physical collectible.
+          Every MuMu mystery box is <strong>$25</strong> and contains one randomly selected physical collectible.
           Below are the exact probabilities for each rarity tier. These odds are applied per box opened and do not change based on previous results.
         </p>
 
@@ -71,7 +71,7 @@ export default function OddsPage() {
               </div>
               <p className="text-sm text-orange-700">{r.description}</p>
               <p className="text-xs text-orange-500 mt-1">
-                PomPom buyback price: <strong>{r.buyback}</strong>
+                MuMu buyback price: <strong>{r.buyback}</strong>
               </p>
             </div>
           ))}
@@ -90,7 +90,7 @@ export default function OddsPage() {
         <div className="bg-orange-100 rounded-2xl p-6 mb-8">
           <h2 className="text-lg font-bold text-orange-950 mb-2">Expected Value Example</h2>
           <p className="text-sm text-orange-700 mb-3">
-            If a user opened a box and immediately sold back every item at the PomPom buyback price:
+            If a user opened a box and immediately sold back every item at the MuMu buyback price:
           </p>
           <div className="space-y-1 text-sm font-mono text-orange-800">
             <div className="flex justify-between"><span>70.5% × $8 (Common)</span><span>= $5.64</span></div>
@@ -112,11 +112,11 @@ export default function OddsPage() {
         <div className="text-sm text-orange-500 space-y-1">
           <p>Purchasing a box does not guarantee any specific item or outcome.</p>
           <p>Results of one box opening do not affect subsequent openings.</p>
-          <p>PomPom reserves the right to update its product catalog and inventory levels.</p>
+          <p>MuMu reserves the right to update its product catalog and inventory levels.</p>
         </div>
 
         <div className="mt-12 pt-8 border-t border-orange-200">
-          <a href="/" className="text-orange-600 hover:underline text-sm">← Back to PomPom</a>
+          <a href="/" className="text-orange-600 hover:underline text-sm">← Back to MuMu</a>
         </div>
       </div>
     </div>

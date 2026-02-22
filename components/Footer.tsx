@@ -32,7 +32,7 @@ export default function Footer() {
                 <Sparkle weight="fill" className="text-xl" />
               </div>
               <span className="font-bold text-2xl tracking-tight text-orange-950">
-                PomPom
+                MuMu
               </span>
             </div>
             <p className="text-gray-500 font-medium">
@@ -87,7 +87,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-400 font-medium">
-          <p>© 2024 PomPom Inc. All rights reserved.</p>
+          <p>© 2024 MuMu Inc. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="/legal/privacy" className="hover:text-orange-600">
               Privacy

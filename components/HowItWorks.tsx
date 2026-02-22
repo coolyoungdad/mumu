@@ -39,7 +39,7 @@ export default function HowItWorks() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold text-orange-950 mb-6">
-            How PomPom Works
+            How MuMu Works
           </h2>
           <p className="text-xl text-orange-800 max-w-2xl mx-auto">
             No junk. Only high-quality pulls with guaranteed value and instant cash-out.

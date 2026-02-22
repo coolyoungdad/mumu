@@ -1,4 +1,4 @@
--- PomPom Schema V2 - Balance-based Loot Box System
+-- MuMu Schema V2 - Balance-based Loot Box System
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

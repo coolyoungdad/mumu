@@ -1,4 +1,4 @@
-# PomPom v2.0 Pre-Deployment Checklist
+# MuMu v2.0 Pre-Deployment Checklist
 ## 60/30/9/1 Probability Distribution Release
 
 **Print this page and check off each item before deploying.**
@@ -67,7 +67,7 @@ This deployment changes core game mechanics. **Do not skip any step.**
 ### Migration 007: Sellback Inventory + Shipping
 **Status:** ⬜ NOT STARTED | ⬜ COMPLETE
 
-**File:** `pompom/supabase/migrations/007_sellback_inventory_restore.sql`
+**File:** `mumu/supabase/migrations/007_sellback_inventory_restore.sql`
 
 **Steps:**
 1. [ ] Open Supabase Dashboard → SQL Editor
@@ -101,7 +101,7 @@ WHERE routine_name = 'sellback_item';
 ### Migration 008: Probability Distribution Update
 **Status:** ⬜ NOT STARTED | ⬜ COMPLETE
 
-**File:** `pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql`
+**File:** `mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql`
 
 **⚠️ IMPORTANT:** Run AFTER migration 007 (sequential dependency)
 
@@ -144,7 +144,7 @@ Run the included test query to verify distribution is correct:
 
 **Commands:**
 ```bash
-cd "/Users/alexanderbercow/Desktop/PomPom Claude/pompom"
+cd "/Users/alexanderbercow/Desktop/MuMu Claude/mumu"
 
 # Verify .env.local won't be committed
 git check-ignore .env.local
@@ -180,7 +180,7 @@ git push origin main
 #### New Vercel Project (if first deployment)
 - [ ] Created Vercel account at https://vercel.com
 - [ ] Clicked "Add New Project"
-- [ ] Selected PomPom repository
+- [ ] Selected MuMu repository
 - [ ] Framework: Next.js (auto-detected)
 
 #### Environment Variables Configuration
@@ -192,7 +192,7 @@ git push origin main
 - [ ] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` = pk_live_... (⚠️ Use LIVE keys for production)
 - [ ] `STRIPE_SECRET_KEY` = sk_live_... (⚠️ Use LIVE keys for production)
 - [ ] `STRIPE_WEBHOOK_SECRET` = whsec_... (configure AFTER first deployment)
-- [ ] `NEXT_PUBLIC_APP_URL` = https://pompom.vercel.app (update after deployment)
+- [ ] `NEXT_PUBLIC_APP_URL` = https://mumu.vercel.app (update after deployment)
 
 **Optional but recommended:**
 - [ ] `UPSTASH_REDIS_REST_URL` (rate limiting)
@@ -213,10 +213,10 @@ git push origin main
 **Status:** ⬜ NOT STARTED | ⬜ COMPLETE
 
 - [ ] Opened Supabase → Authentication → URL Configuration
-- [ ] Set **Site URL** to production URL (e.g., `https://pompom.vercel.app`)
+- [ ] Set **Site URL** to production URL (e.g., `https://mumu.vercel.app`)
 - [ ] Added to **Redirect URLs**:
-  - [ ] `https://pompom.vercel.app/auth/callback`
-  - [ ] `https://pompom.vercel.app/**`
+  - [ ] `https://mumu.vercel.app/auth/callback`
+  - [ ] `https://mumu.vercel.app/**`
 - [ ] Clicked **"Save"**
 
 ---
@@ -226,7 +226,7 @@ git push origin main
 
 - [ ] Opened Stripe Dashboard → Developers → Webhooks
 - [ ] Clicked **"Add endpoint"**
-- [ ] Endpoint URL: `https://pompom.vercel.app/api/webhooks/stripe`
+- [ ] Endpoint URL: `https://mumu.vercel.app/api/webhooks/stripe`
 - [ ] Selected events: **checkout.session.completed**
 - [ ] Clicked **"Add endpoint"**
 - [ ] Copied **Signing secret** (starts with `whsec_...`): _________________________________
@@ -345,7 +345,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 ### Google Sheet Update
 **Status:** ⬜ NOT STARTED | ⬜ COMPLETE
 
-**File:** `pompom/IMPLEMENTATION_SUMMARY_60_30_9_1.txt`
+**File:** `mumu/IMPLEMENTATION_SUMMARY_60_30_9_1.txt`
 
 - [ ] Opened Google Sheet: https://docs.google.com/spreadsheets/d/121oEwaW8mMVCj9dDgRvDod8KqPUgQ6p8LQ5UPQ0aZCs/edit
 - [ ] Created 11 tabs (or updated existing):
@@ -395,7 +395,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 **Status:** ⬜ NOT STARTED | ⬜ COMPLETE
 
 - [ ] Email address for support: _________________________________
-  - [ ] Option 1: Create support@pompom.com (Google Workspace $6/month)
+  - [ ] Option 1: Create support@mumu.com (Google Workspace $6/month)
   - [ ] Option 2: Use personal email initially
 - [ ] Response time target: **24 hours**
 - [ ] FAQ documented for common issues:
@@ -434,7 +434,7 @@ UPDATE users SET role = 'admin' WHERE email = 'your@email.com';
 
 **Database Rollback:**
 ```sql
--- See pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql
+-- See mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql
 -- (Full rollback script at bottom of file)
 -- Reverts to 70.5/25/4/0.5 distribution
 ```

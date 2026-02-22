@@ -1,4 +1,4 @@
-# PomPom - Mystery Box E-Commerce Platform
+# MuMu - Mystery Box E-Commerce Platform
 
 A Next.js-based mystery box shopping platform with weighted rarity tiers, atomic inventory management, and Stripe payment integration.
 
@@ -25,7 +25,7 @@ A Next.js-based mystery box shopping platform with weighted rarity tiers, atomic
 ## Project Structure
 
 ```
-pompom/
+mumu/
 ├── app/
 │   ├── api/
 │   │   ├── checkout/          # Stripe checkout session creation
@@ -92,7 +92,7 @@ Required variables:
 3. Run in SQL Editor:
 ```sql
 INSERT INTO public.users (id, email, role)
-VALUES ('your-user-id', 'admin@pompom.com', 'admin');
+VALUES ('your-user-id', 'admin@mumu.com', 'admin');
 ```
 
 ### 3. Stripe Setup
@@ -281,5 +281,5 @@ Handles Stripe webhook events (checkout.session.completed, payment intents).
 
 ## License
 
-© 2024 PomPom Inc. All rights reserved.
+© 2024 MuMu Inc. All rights reserved.
 

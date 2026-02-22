@@ -1,4 +1,4 @@
--- PomPom Seed Data V2 — Real PopMart/Sanrio Collectibles
+-- MuMu Seed Data V2 — Real PopMart/Sanrio Collectibles
 -- Run AFTER schema-v2.sql and all migrations
 -- Clears existing data and re-seeds with real product catalog
 
@@ -39,11 +39,11 @@ INSERT INTO public.products (id, name, sku, rarity, wholesale_cost, resale_value
 (uuid_generate_v4(), 'Milk Tea Cinnamoroll',          'MILK-TEA-CINNAMOROLL',     'common',   12.00, 15.00,  7.00, 'Sanrio'),
 (uuid_generate_v4(), 'Monster Baby Pucky',            'MONSTER-PUCKY',            'common',   12.00, 15.00,  7.00, 'Pop Mart'),
 (uuid_generate_v4(), 'Moonlight Dimoo',               'MOONLIGHT-DIMOO',          'common',   12.00, 15.00,  7.00, 'Pop Mart'),
-(uuid_generate_v4(), 'Pajama Time Pompompurin',       'PAJAMA-POMPOMPURIN',        'common',   12.00, 15.00,  7.00, 'Sanrio'),
+(uuid_generate_v4(), 'Pajama Time Pompompurin',       'PAJAMA-MUMUPURIN',        'common',   12.00, 15.00,  7.00, 'Sanrio'),
 (uuid_generate_v4(), 'Party Queen Kuromi',            'PARTY-KUROMI',             'common',   12.00, 15.00,  7.00, 'Sanrio'),
 (uuid_generate_v4(), 'Pisces Molly',                  'PISCES-MOLLY',             'common',   12.00, 15.00,  7.00, 'Pop Mart'),
 (uuid_generate_v4(), 'Planet Explorer Dimoo',         'PLANET-DIMOO',             'common',   12.00, 15.00,  7.00, 'Pop Mart'),
-(uuid_generate_v4(), 'Pudding Chef Pompompurin',      'PUDDING-POMPOMPURIN',       'common',   12.00, 15.00,  7.00, 'Sanrio'),
+(uuid_generate_v4(), 'Pudding Chef Pompompurin',      'PUDDING-MUMUPURIN',       'common',   12.00, 15.00,  7.00, 'Sanrio'),
 (uuid_generate_v4(), 'Rainy Day Keroppi',             'RAINY-KEROPPI',            'common',   12.00, 15.00,  7.00, 'Sanrio'),
 (uuid_generate_v4(), 'Retro TV Molly',                'RETRO-MOLLY',              'common',   12.00, 15.00,  7.00, 'Pop Mart'),
 (uuid_generate_v4(), 'Rock Star Badtz-Maru',          'ROCKSTAR-BADTZ',           'common',   12.00, 15.00,  7.00, 'Sanrio'),

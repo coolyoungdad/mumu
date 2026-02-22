@@ -93,7 +93,7 @@ export default async function AdminDashboard() {
             <h1 className="text-3xl font-bold text-orange-950">
               Admin Dashboard
             </h1>
-            <p className="text-orange-600 mt-1">PomPom Operations</p>
+            <p className="text-orange-600 mt-1">MuMu Operations</p>
           </div>
           <div className="flex items-center gap-4">
             <a

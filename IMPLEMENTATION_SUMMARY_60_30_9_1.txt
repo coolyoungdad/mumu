@@ -1,5 +1,5 @@
 ================================================================================
-POMPOM PROBABILITY DISTRIBUTION UPDATE: 60/30/9/1
+MUMU PROBABILITY DISTRIBUTION UPDATE: 60/30/9/1
 Implementation Summary & Google Sheet Data
 Date: February 18, 2026
 ================================================================================
@@ -16,7 +16,7 @@ CONSENSUS: Approve with staged rollout, cash buffer, and kill metrics
 PART 1: MIGRATION EXECUTED
 ================================================================================
 
-File Created: pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql
+File Created: mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql
 
 What Changed:
 1. open_mystery_box() function - probability thresholds updated
@@ -427,8 +427,8 @@ END OF IMPLEMENTATION SUMMARY
 ================================================================================
 
 Files created:
-1. pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql
-2. pompom/IMPLEMENTATION_SUMMARY_60_30_9_1.txt (this file)
+1. mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql
+2. mumu/IMPLEMENTATION_SUMMARY_60_30_9_1.txt (this file)
 
 Next steps:
 1. Run migration 007 in Supabase (if not already done)

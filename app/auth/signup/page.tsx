@@ -95,7 +95,7 @@ export default function SignUpPage() {
               Create Account
             </h1>
             <p className="text-orange-800">
-              Join PomPom and start unboxing today!
+              Join MuMu and start unboxing today!
             </p>
           </div>
 

@@ -37,4 +37,4 @@ SELECT id, 20 FROM public.products;
 
 -- Create an admin user (you'll need to update this after creating your actual auth user)
 -- After signing up with Supabase Auth, run this with your actual user ID:
--- INSERT INTO public.users (id, email, role) VALUES ('your-user-id-here', 'admin@pompom.com', 'admin');
+-- INSERT INTO public.users (id, email, role) VALUES ('your-user-id-here', 'admin@mumu.com', 'admin');

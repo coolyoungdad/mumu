@@ -4,7 +4,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM = "PomPom <hello@pompom.shop>";
+const FROM = "MuMu <hello@mumu.shop>";
 
 // Graceful no-op if RESEND_API_KEY is not configured
 async function send(payload: Parameters<Resend["emails"]["send"]>[0]) {
@@ -86,13 +86,13 @@ function shell(content: string) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PomPom</title>
+  <title>MuMu</title>
 </head>
 <body style="margin:0;padding:0;background:#FFF5F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:48px 24px;">
     <!-- Logo -->
     <div style="margin-bottom:32px;">
-      <span style="font-size:24px;font-weight:900;color:#7c2d12;letter-spacing:-0.5px;">PomPom</span>
+      <span style="font-size:24px;font-weight:900;color:#7c2d12;letter-spacing:-0.5px;">MuMu</span>
     </div>
     <!-- Card -->
     <div style="background:#fff;border-radius:24px;padding:40px;border:1px solid #fed7aa;">
@@ -101,10 +101,10 @@ function shell(content: string) {
     <!-- Footer -->
     <div style="text-align:center;margin-top:32px;">
       <p style="font-size:12px;color:#fb923c;margin:0;">
-        © 2026 PomPom &nbsp;·&nbsp;
-        <a href="https://pompom.shop/legal/terms" style="color:#fb923c;">Terms</a>
+        © 2026 MuMu &nbsp;·&nbsp;
+        <a href="https://mumu.shop/legal/terms" style="color:#fb923c;">Terms</a>
         &nbsp;·&nbsp;
-        <a href="https://pompom.shop/legal/odds" style="color:#fb923c;">Odds</a>
+        <a href="https://mumu.shop/legal/odds" style="color:#fb923c;">Odds</a>
       </p>
     </div>
   </div>
@@ -146,11 +146,11 @@ function withdrawalConfirmationHtml({
     <p style="font-size:14px;color:#9a3412;margin:0 0 32px;line-height:1.6;">
       You'll receive a PayPal notification once the payment clears. If you have
       questions, reply to this email or contact
-      <a href="mailto:support@pompom.shop" style="color:#ea580c;">support@pompom.shop</a>.
+      <a href="mailto:support@mumu.shop" style="color:#ea580c;">support@mumu.shop</a>.
     </p>
 
     <div style="text-align:center;">
-      <a href="https://pompom.shop/profile"
+      <a href="https://mumu.shop/profile"
         style="display:inline-block;background:#ea580c;color:#fff;font-weight:800;font-size:14px;
                padding:14px 36px;border-radius:14px;text-decoration:none;">
         View your profile
@@ -191,7 +191,7 @@ function nudgeHtml({ name, amount }: { name: string; amount: number }) {
     </p>
 
     <div style="text-align:center;">
-      <a href="https://pompom.shop/box"
+      <a href="https://mumu.shop/box"
         style="display:inline-block;background:#ea580c;color:#fff;font-weight:800;font-size:14px;
                padding:14px 36px;border-radius:14px;text-decoration:none;">
         Open a box — $25
@@ -236,7 +236,7 @@ function winBackHtml({ name }: { name: string }) {
     </p>
 
     <div style="text-align:center;">
-      <a href="https://pompom.shop/box"
+      <a href="https://mumu.shop/box"
         style="display:inline-block;background:#ea580c;color:#fff;font-weight:800;font-size:14px;
                padding:14px 36px;border-radius:14px;text-decoration:none;">
         Open a box — $25

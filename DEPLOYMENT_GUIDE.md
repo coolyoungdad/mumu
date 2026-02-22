@@ -1,4 +1,4 @@
-# PomPom Deployment Guide
+# MuMu Deployment Guide
 ## 60/30/9/1 Probability Distribution Release
 
 **Date:** February 18, 2026
@@ -52,7 +52,7 @@ This deployment implements the approved 60/30/9/1 probability distribution with:
 **Step 1.1: Run Migration 007 (Sellback Inventory Restoration)**
 
 ```bash
-# Location: pompom/supabase/migrations/007_sellback_inventory_restore.sql
+# Location: mumu/supabase/migrations/007_sellback_inventory_restore.sql
 ```
 
 1. Open Supabase Dashboard → SQL Editor
@@ -87,7 +87,7 @@ SELECT * FROM low_inventory_items LIMIT 5;
 **Step 1.2: Run Migration 008 (Probability Update)**
 
 ```bash
-# Location: pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql
+# Location: mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql
 ```
 
 1. In Supabase SQL Editor, open new query
@@ -145,7 +145,7 @@ END $$;
 **Step 2.1: Prepare GitHub Repository**
 
 ```bash
-cd "/Users/alexanderbercow/Desktop/PomPom Claude/pompom"
+cd "/Users/alexanderbercow/Desktop/MuMu Claude/mumu"
 
 # Verify .env.local is in .gitignore (CRITICAL - do not commit secrets)
 git check-ignore .env.local
@@ -182,7 +182,7 @@ git push origin main
 
 2. **Import Repository**
    - Click "Add New Project"
-   - Select your PomPom repository
+   - Select your MuMu repository
    - Framework Preset: **Next.js** (auto-detected)
    - Root Directory: `./` (leave default)
 
@@ -202,7 +202,7 @@ git push origin main
    STRIPE_WEBHOOK_SECRET=whsec_... (get from Stripe after Step 2.4)
 
    # App URL (update after deployment)
-   NEXT_PUBLIC_APP_URL=https://pompom.vercel.app (or your custom domain)
+   NEXT_PUBLIC_APP_URL=https://mumu.vercel.app (or your custom domain)
 
    # Upstash Redis (for rate limiting - optional but recommended)
    UPSTASH_REDIS_REST_URL=https://...
@@ -219,17 +219,17 @@ git push origin main
 4. **Click Deploy**
 
    - Wait 2-5 minutes for build to complete
-   - Copy your production URL (e.g., `https://pompom.vercel.app`)
+   - Copy your production URL (e.g., `https://mumu.vercel.app`)
 
 ---
 
 **Step 2.3: Update Supabase Auth URLs**
 
 1. Open Supabase Dashboard → Authentication → URL Configuration
-2. Add your Vercel URL to **Site URL**: `https://pompom.vercel.app`
+2. Add your Vercel URL to **Site URL**: `https://mumu.vercel.app`
 3. Add to **Redirect URLs**:
-   - `https://pompom.vercel.app/auth/callback`
-   - `https://pompom.vercel.app/**` (wildcard for all routes)
+   - `https://mumu.vercel.app/auth/callback`
+   - `https://mumu.vercel.app/**` (wildcard for all routes)
 4. Click "Save"
 
 ---
@@ -238,7 +238,7 @@ git push origin main
 
 1. Open Stripe Dashboard → Developers → Webhooks
 2. Click "Add endpoint"
-3. Endpoint URL: `https://pompom.vercel.app/api/webhooks/stripe`
+3. Endpoint URL: `https://mumu.vercel.app/api/webhooks/stripe`
 4. Events to send: Select **checkout.session.completed**
 5. Click "Add endpoint"
 6. Copy the **Signing secret** (starts with `whsec_...`)
@@ -253,7 +253,7 @@ git push origin main
 **Full User Flow Test:**
 
 1. **Sign Up**
-   - Visit `https://pompom.vercel.app`
+   - Visit `https://mumu.vercel.app`
    - Create new account with test email
    - Verify email works, redirects to /box
 
@@ -390,7 +390,7 @@ WHERE rarity IN ('common', 'uncommon', 'rare', 'ultra');
   - Mark as shipped in admin panel (Phase 2 feature - manual for now)
 
 - [ ] **Customer support email set up**
-  - Create support@pompom.com (or use personal email initially)
+  - Create support@mumu.com (or use personal email initially)
   - Response time target: 24 hours
   - Common issues: "Balance didn't update", "Where's my item?"
 
@@ -510,7 +510,7 @@ If you need to revert everything:
 
 **Step 1: Database Rollback**
 
-See `pompom/supabase/migrations/008_update_probabilities_60_30_9_1.sql` bottom section for full SQL rollback script.
+See `mumu/supabase/migrations/008_update_probabilities_60_30_9_1.sql` bottom section for full SQL rollback script.
 
 **Step 2: Code Rollback**
 
@@ -593,7 +593,7 @@ Once the A/B test succeeds and you've confirmed this distribution is profitable:
 - [ ] Admin role assigned to your account
 - [ ] Full user flow tested on production URL
 - [ ] Google Sheet updated with new financial model
-- [ ] Customer support email ready (support@pompom.com)
+- [ ] Customer support email ready (support@mumu.com)
 - [ ] Backup downloaded from Supabase
 - [ ] Rollback plan printed/saved locally
 

@@ -119,7 +119,7 @@ function SuccessPageContent() {
         {/* Share */}
         <div className="text-center mt-8">
           <p className="text-white/80 text-sm">
-            Love MuMu? Share with your friends! 🎁
+            Love Mumu? Share with your friends! 🎁
           </p>
         </div>
       </div>

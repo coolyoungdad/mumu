@@ -14,10 +14,10 @@ export default function CTASection() {
             <Sparkle weight="fill" className="text-4xl text-yellow-300" />
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Create a Free Account
+            Save Your Progress
           </h2>
           <p className="text-xl text-orange-50 max-w-2xl mx-auto mb-10">
-            Start opening today and discover your favorite collectibles. Instant buyback on every item. Make your shopping feel like play.
+            Create a free account to keep your collection, deposit real funds, and ship items to your door.
           </p>
 
           <div className="mt-12">
@@ -25,7 +25,7 @@ export default function CTASection() {
               Create Free Account
             </a>
             <p className="mt-4 text-sm text-orange-100 opacity-80">
-              No credit card required to browse
+              Already playing? Your demo progress is saved locally.
             </p>
           </div>
         </div>

@@ -1,4 +1,4 @@
--- MuMu Seed Data V2 — Real PopMart/Sanrio Collectibles
+-- Mumu Seed Data V2 — Real PopMart/Sanrio Collectibles
 -- Run AFTER schema-v2.sql and all migrations
 -- Clears existing data and re-seeds with real product catalog
 

@@ -1,4 +1,4 @@
-# MuMu Tiered Boxes - Complete Implementation Plan
+# Mumu Tiered Boxes - Complete Implementation Plan
 ## For Non-Technical Stakeholders
 
 **Date:** February 18, 2026
@@ -16,7 +16,7 @@ Three tiers of mystery boxes with different minimum guarantees:
 - **Gold Box**: $50 - Guaranteed rare item or better
 
 **Why This Makes Sense:**
-- Keeps the "mystery and surprise" core to MuMu
+- Keeps the "mystery and surprise" core to Mumu
 - Lets users choose their risk level
 - Targets different spending behaviors (casual vs collector vs whale)
 - Simple to understand ("pay more, better minimum odds")
@@ -116,7 +116,7 @@ Same process, but with a filter on step 2:
 
 ## WHAT NEEDS TO BE BUILT
 
-### 1. Database Changes (The "Brain" of MuMu)
+### 1. Database Changes (The "Brain" of Mumu)
 
 **Current:**
 ```
@@ -553,7 +553,7 @@ Subject: 🎁 New! Choose Your Mystery Box Level
 
 Hey [Name],
 
-Big news: MuMu now has THREE mystery box tiers!
+Big news: Mumu now has THREE mystery box tiers!
 
 🥉 BRONZE ($25) - The classic mystery you know and love
 🥈 SILVER ($35) - Skip the commons, guaranteed uncommon+
@@ -567,7 +567,7 @@ Still love the OG? Bronze is still here at $25.
 Feeling lucky? Gold guarantees a rare pull.
 
 Happy unboxing!
-- MuMu Team
+- Mumu Team
 ```
 
 **On-Page Messaging:**
@@ -641,7 +641,7 @@ A: We can disable Silver/Gold in the admin panel instantly. Bronze stays active,
 | **Maintenance** | Low | High |
 | **Revenue Upside** | +$80K/year | +$100K/year (if it works) |
 | **Risk** | Low | High |
-| **Aligns with MuMu Brand** | ✅ Yes | ❌ No (too complex) |
+| **Aligns with Mumu Brand** | ✅ Yes | ❌ No (too complex) |
 
 **Why Tiered Wins:**
 - 80% of the revenue upside at 20% of the cost
@@ -694,7 +694,7 @@ A: We can disable Silver/Gold in the admin panel instantly. Bronze stays active,
 
 ## CONCLUSION
 
-Tiered Boxes is a low-risk, high-reward addition to MuMu that:
+Tiered Boxes is a low-risk, high-reward addition to Mumu that:
 - ✅ Preserves the mystery box experience
 - ✅ Gives users meaningful choice
 - ✅ Increases revenue without complexity
@@ -763,6 +763,6 @@ If we need to disable tiers:
 
 **Document Version:** 1.0
 **Last Updated:** February 18, 2026
-**Author:** MuMu Product Team
+**Author:** Mumu Product Team
 **Reviewers Needed:** Engineering, Finance, Marketing, CEO
 **Approval Required:** Founder Sign-off

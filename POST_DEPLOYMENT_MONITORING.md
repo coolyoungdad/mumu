@@ -1,5 +1,5 @@
 # Post-Deployment Monitoring Plan
-## MuMu v2.0 (60/30/9/1 Distribution)
+## Mumu v2.0 (60/30/9/1 Distribution)
 
 **Purpose:** Track actual performance vs projections, identify issues early, make go/no-go decision after 30 days.
 

@@ -1,4 +1,4 @@
-# MuMu Shake Feature — Master Plan
+# Mumu Shake Feature — Master Plan
 ## Consolidated Multi-Agent Review & Final Recommendations
 
 **Document Purpose:** This is the consolidated master plan synthesizing feedback from 5 specialized reviews (Backend Engineer, Game Designer, CFO, Security/Legal, Product Manager) on the simplified shake feature.
@@ -206,7 +206,7 @@ The simplified shake feature (one shake per box, eliminates 50% of items, draw a
 
 **Key Finding:** Shake fits the brand and audience. Build it, but also plan for Pity mechanic as retention play.
 
-**Is Shake Right for MuMu?**
+**Is Shake Right for Mumu?**
 - ✅ Fits mystery box collector psychology (agency without certainty)
 - ✅ PopMart's shake mechanic reportedly works well (pause → micro-decision → swap or proceed)
 - ✅ Simplified version is more honest than some implementations

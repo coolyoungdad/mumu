@@ -1,4 +1,4 @@
-# 🎲 MuMu v2.0 Deployment Package
+# 🎲 Mumu v2.0 Deployment Package
 
 **Everything you need to deploy the 60/30/9/1 probability distribution update.**
 

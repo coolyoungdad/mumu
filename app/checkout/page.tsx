@@ -65,7 +65,7 @@ export default function CheckoutPage() {
             </div>
 
             <h1 className="text-3xl font-bold text-orange-950 mb-4">
-              MuMu Mystery Box
+              Mumu Mystery Box
             </h1>
 
             <p className="text-orange-800 mb-6 leading-relaxed">

@@ -14,6 +14,10 @@ import {
 import { BOX_PRICE, SHAKE_PRICE, RARITY_COLORS, type RarityTier } from "@/lib/types/database";
 import { dispatchBalanceUpdate } from "@/lib/events/balance";
 import { track } from "@/lib/analytics";
+import { getDemoBalance, addDemoBalance, resetDemoBalance } from "@/lib/demo/balance";
+import { demoOpenBox } from "@/lib/demo/roll";
+import { demoShake } from "@/lib/demo/shake";
+import { addDemoInventoryItem, sellDemoInventoryItem } from "@/lib/demo/inventory";
 import Navbar from "@/components/Navbar";
 import BoxContents from "@/components/BoxContents";
 import ItemDetailModal from "@/components/ItemDetailModal";
@@ -119,16 +123,16 @@ export default function BoxOpeningPage() {
         setBalance(data.account_balance);
         dispatchBalanceUpdate(data.account_balance, "initial_load");
       }
+    } else {
+      const demoBalance = getDemoBalance();
+      setBalance(demoBalance);
+      dispatchBalanceUpdate(demoBalance, "demo_initial");
     }
 
     setIsLoading(false);
   };
 
   const handleShake = useCallback(async () => {
-    if (!user) {
-      router.push("/auth/login?redirect=/box");
-      return;
-    }
     if (isShaking) return;
 
     track({ event: "shake_initiated" });
@@ -136,33 +140,41 @@ export default function BoxOpeningPage() {
     setIsShaking(true);
     setOpenState("shaking");
 
-    // Generate a fresh idempotency key for this shake attempt
-    const idempotency_key = crypto.randomUUID();
-
     try {
-      const response = await fetch("/api/box/shake", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idempotency_key }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to shake");
-      }
-
-      const newIds: string[] = data.eliminated_product_ids ?? [];
-      setEliminatedIds(newIds);
-      setBalance(data.new_balance);
-      dispatchBalanceUpdate(data.new_balance, "shake");
-
-      if (!data.already_charged && newIds.length > 0) {
-        saveShakeState({ eliminated_ids: newIds, idempotency_key, ts: Date.now() });
-        track({
-          event: "shake_charged",
-          properties: { eliminated_count: data.eliminated_count, new_balance: data.new_balance },
+      if (user) {
+        // Server-side shake (authenticated)
+        const idempotency_key = crypto.randomUUID();
+        const response = await fetch("/api/box/shake", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idempotency_key }),
         });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to shake");
+
+        const newIds: string[] = data.eliminated_product_ids ?? [];
+        setEliminatedIds(newIds);
+        setBalance(data.new_balance);
+        dispatchBalanceUpdate(data.new_balance, "shake");
+
+        if (!data.already_charged && newIds.length > 0) {
+          saveShakeState({ eliminated_ids: newIds, idempotency_key, ts: Date.now() });
+          track({ event: "shake_charged", properties: { eliminated_count: data.eliminated_count, new_balance: data.new_balance } });
+        }
+      } else {
+        // Client-side shake (demo mode)
+        const result = await demoShake();
+        if (!result.success) throw new Error(result.error || "Failed to shake");
+
+        const newIds = result.eliminated_product_ids ?? [];
+        setEliminatedIds(newIds);
+        setBalance(result.new_balance!);
+        dispatchBalanceUpdate(result.new_balance!, "demo_shake");
+
+        if (newIds.length > 0) {
+          saveShakeState({ eliminated_ids: newIds, idempotency_key: crypto.randomUUID(), ts: Date.now() });
+          track({ event: "shake_charged", properties: { eliminated_count: result.eliminated_count!, new_balance: result.new_balance! } });
+        }
       }
     } catch (err) {
       setShakeError(err instanceof Error ? err.message : "Failed to shake");
@@ -171,7 +183,7 @@ export default function BoxOpeningPage() {
       setIsShaking(false);
       setOpenState("idle");
     }
-  }, [user, isShaking, router]);
+  }, [user, isShaking]);
 
   const handleFreshBox = useCallback(() => {
     track({ event: "fresh_box_requested" });
@@ -181,10 +193,6 @@ export default function BoxOpeningPage() {
   }, []);
 
   const handleOpenBox = async () => {
-    if (!user) {
-      router.push("/auth/login?redirect=/box");
-      return;
-    }
     setError(null);
     setOpenState("opening");
 
@@ -199,48 +207,65 @@ export default function BoxOpeningPage() {
     const hadShake = eliminatedIds.length > 0;
 
     try {
-      const response = await fetch("/api/box/open", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ excluded_ids: eliminatedIds }),
-      });
+      let item: RevealedItem;
 
-      const data = await response.json();
+      if (user) {
+        // Server-side open (authenticated)
+        const response = await fetch("/api/box/open", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ excluded_ids: eliminatedIds }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to open box");
 
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to open box");
+        item = {
+          id: data.product.id,
+          name: data.product.name,
+          sku: data.product.sku,
+          rarity: data.product.rarity,
+          buyback_price: data.product.buyback_price,
+          inventory_item_id: data.inventory_item_id,
+        };
+        setBalance(data.new_balance);
+        dispatchBalanceUpdate(data.new_balance, "box_open");
+      } else {
+        // Client-side open (demo mode)
+        const result = await demoOpenBox(eliminatedIds);
+        if (!result.success) throw new Error(result.error || "Failed to open box");
+
+        const product = result.product!;
+        const invItem = addDemoInventoryItem({
+          product_id: product.id,
+          product_name: product.name,
+          product_sku: product.sku,
+          rarity: product.rarity,
+          buyback_price: product.buyback_price,
+        });
+
+        item = {
+          id: product.id,
+          name: product.name,
+          sku: product.sku,
+          rarity: product.rarity,
+          buyback_price: product.buyback_price,
+          inventory_item_id: invItem.id,
+        };
+        setBalance(result.new_balance!);
+        dispatchBalanceUpdate(result.new_balance!, "demo_open");
       }
 
-      const item: RevealedItem = {
-        id: data.product.id,
-        name: data.product.name,
-        sku: data.product.sku,
-        rarity: data.product.rarity,
-        buyback_price: data.product.buyback_price,
-        inventory_item_id: data.inventory_item_id,
-      };
       setRevealedItem(item);
-      setBalance(data.new_balance);
-      dispatchBalanceUpdate(data.new_balance, "box_open");
 
-      // Track open event
       if (hadShake) {
-        track({
-          event: "box_opened_after_shake",
-          properties: { rarity: item.rarity, product_name: item.name, new_balance: data.new_balance },
-        });
+        track({ event: "box_opened_after_shake", properties: { rarity: item.rarity, product_name: item.name, new_balance: balance } });
       } else {
-        track({
-          event: "box_opened_no_shake",
-          properties: { rarity: item.rarity, product_name: item.name, new_balance: data.new_balance },
-        });
+        track({ event: "box_opened_no_shake", properties: { rarity: item.rarity, product_name: item.name, new_balance: balance } });
       }
 
       setOpenState("splash");
-
       const splashDuration = item.rarity === "rare" || item.rarity === "ultra" ? 2000 : 1200;
       await new Promise((resolve) => setTimeout(resolve, splashDuration));
-
       setOpenState("revealing");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to open box");
@@ -252,19 +277,27 @@ export default function BoxOpeningPage() {
     if (!revealedItem) return;
 
     try {
-      const response = await fetch("/api/box/sellback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          inventory_item_id: revealedItem.inventory_item_id,
-          buyback_price: revealedItem.buyback_price
-        }),
-      });
+      if (user) {
+        // Server-side sellback (authenticated)
+        const response = await fetch("/api/box/sellback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            inventory_item_id: revealedItem.inventory_item_id,
+            buyback_price: revealedItem.buyback_price
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Failed to sell back");
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to sell back");
+        setBalance(data.new_balance);
+        dispatchBalanceUpdate(data.new_balance, "sellback");
+      } else {
+        // Client-side sellback (demo mode)
+        const newBalance = addDemoBalance(revealedItem.buyback_price);
+        sellDemoInventoryItem(revealedItem.inventory_item_id);
+        setBalance(newBalance);
+        dispatchBalanceUpdate(newBalance, "demo_sellback");
       }
 
       track({
@@ -272,13 +305,8 @@ export default function BoxOpeningPage() {
         properties: { rarity: revealedItem.rarity, buyback_price: revealedItem.buyback_price },
       });
 
-      setBalance(data.new_balance);
-      dispatchBalanceUpdate(data.new_balance, "sellback");
-
-      // Clear shake state now that the user has made a decision
       clearShakeState();
       setEliminatedIds([]);
-
       setOpenState("decided");
 
       setTimeout(() => {
@@ -403,15 +431,15 @@ export default function BoxOpeningPage() {
                 {/* Open Button */}
                 <button
                   onClick={handleOpenBox}
-                  disabled={(!!user && !canAffordBox) || openState === "shaking"}
+                  disabled={!canAffordBox || openState === "shaking"}
                   className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-10 py-4 rounded-xl font-bold text-lg hover:from-orange-600 hover:to-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-2xl hover:shadow-orange-500/50 hover:scale-105 flex items-center justify-center gap-3 mb-3"
                 >
                   <Sparkle weight="fill" className="text-xl" />
-                  {user ? (hasShake ? "Open This Box!" : "Open Now!") : "Sign Up to Open"}
+                  {hasShake ? "Open This Box!" : "Open Now!"}
                 </button>
 
                 {/* Shake Button */}
-                {user && !hasShake && (
+                {!hasShake && (
                   <button
                     onClick={handleShake}
                     disabled={!canAffordShake || isShaking}
@@ -423,31 +451,49 @@ export default function BoxOpeningPage() {
                 )}
 
                 {/* Shake help text */}
-                {user && !hasShake && (
+                {!hasShake && (
                   <p className="text-center text-xs text-orange-400 mt-2">
                     Shake to eliminate half the possibilities — then decide.
                   </p>
                 )}
 
-                {user && !canAffordBox && (
+                {!canAffordBox && !user && (
+                  <button
+                    onClick={() => { resetDemoBalance(); setBalance(500); dispatchBalanceUpdate(500, "demo_initial"); }}
+                    className="w-full mt-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg"
+                  >
+                    Refill Demo Credits ($500)
+                  </button>
+                )}
+
+                {!canAffordBox && user && (
                   <p className="text-red-500 mt-3 font-medium text-sm">
                     Insufficient balance. Please top up your account.
                   </p>
                 )}
 
-                {user && !hasShake && !canAffordShake && canAffordBox && (
+                {!hasShake && !canAffordShake && canAffordBox && (
                   <p className="text-orange-400 mt-2 text-xs text-center">
                     Need ${SHAKE_PRICE.toFixed(2)} to shake.
                   </p>
                 )}
               </div>
 
-              <button
-                onClick={() => router.push("/profile")}
-                className="text-orange-600 hover:text-orange-950 transition-colors font-medium text-sm"
-              >
-                View My Inventory →
-              </button>
+              {user ? (
+                <button
+                  onClick={() => router.push("/profile")}
+                  className="text-orange-600 hover:text-orange-950 transition-colors font-medium text-sm"
+                >
+                  View My Inventory →
+                </button>
+              ) : (
+                <button
+                  onClick={() => router.push("/auth/signup")}
+                  className="text-orange-600 hover:text-orange-950 transition-colors font-medium text-sm"
+                >
+                  Sign up to save your collection →
+                </button>
+              )}
             </div>
           )}
 

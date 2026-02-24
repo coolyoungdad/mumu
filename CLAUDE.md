@@ -1,4 +1,4 @@
-# Development Workflow for MuMu
+# Development Workflow for Mumu
 
 ## CRITICAL: Build and Test Protocol
 
@@ -32,7 +32,7 @@
 
 If git is not initialized:
 ```bash
-cd /Users/alexanderbercow/Desktop/MuMu\ Claude/mumu
+cd /Users/alexanderbercow/Desktop/Mumu\ Claude/mumu
 git init
 git add .
 git commit -m "Initial commit"

@@ -1,4 +1,4 @@
-# MuMu Deployment Guide
+# Mumu Deployment Guide
 ## 60/30/9/1 Probability Distribution Release
 
 **Date:** February 18, 2026
@@ -145,7 +145,7 @@ END $$;
 **Step 2.1: Prepare GitHub Repository**
 
 ```bash
-cd "/Users/alexanderbercow/Desktop/MuMu Claude/mumu"
+cd "/Users/alexanderbercow/Desktop/Mumu Claude/mumu"
 
 # Verify .env.local is in .gitignore (CRITICAL - do not commit secrets)
 git check-ignore .env.local
@@ -182,7 +182,7 @@ git push origin main
 
 2. **Import Repository**
    - Click "Add New Project"
-   - Select your MuMu repository
+   - Select your Mumu repository
    - Framework Preset: **Next.js** (auto-detected)
    - Root Directory: `./` (leave default)
 

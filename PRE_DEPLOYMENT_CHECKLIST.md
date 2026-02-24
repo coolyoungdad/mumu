@@ -1,4 +1,4 @@
-# MuMu v2.0 Pre-Deployment Checklist
+# Mumu v2.0 Pre-Deployment Checklist
 ## 60/30/9/1 Probability Distribution Release
 
 **Print this page and check off each item before deploying.**
@@ -144,7 +144,7 @@ Run the included test query to verify distribution is correct:
 
 **Commands:**
 ```bash
-cd "/Users/alexanderbercow/Desktop/MuMu Claude/mumu"
+cd "/Users/alexanderbercow/Desktop/Mumu Claude/mumu"
 
 # Verify .env.local won't be committed
 git check-ignore .env.local
@@ -180,7 +180,7 @@ git push origin main
 #### New Vercel Project (if first deployment)
 - [ ] Created Vercel account at https://vercel.com
 - [ ] Clicked "Add New Project"
-- [ ] Selected MuMu repository
+- [ ] Selected Mumu repository
 - [ ] Framework: Next.js (auto-detected)
 
 #### Environment Variables Configuration

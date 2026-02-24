@@ -8,12 +8,12 @@ export default function TermsPage() {
         <div className="prose prose-orange max-w-none space-y-8 text-orange-900">
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">1. Acceptance of Terms</h2>
-            <p>By accessing or using MuMu ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. You must be at least 18 years old to use MuMu.</p>
+            <p>By accessing or using Mumu ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. You must be at least 18 years old to use Mumu.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">2. Description of Service</h2>
-            <p>MuMu is a mystery box platform where users purchase credits ("balance") to open digital mystery boxes containing collectible items. Each box contains one randomly selected physical collectible. Users may choose to have items shipped to them, or sell items back to MuMu at a fixed buyback price.</p>
+            <p>Mumu is a mystery box platform where users purchase credits ("balance") to open digital mystery boxes containing collectible items. Each box contains one randomly selected physical collectible. Users may choose to have items shipped to them, or sell items back to Mumu at a fixed buyback price.</p>
           </section>
 
           <section>
@@ -28,7 +28,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">4a. Withdrawals</h2>
-            <p>You may request a cash withdrawal of your account balance via PayPal, subject to the following conditions: (i) the minimum withdrawal amount is $10 USD; (ii) the maximum withdrawal amount is $500 USD per request; (iii) withdrawals are subject to a 7-day hold from the date of your most recent balance top-up, to protect against payment fraud and chargebacks; (iv) withdrawals are processed within 2–3 business days of approval. MuMu reserves the right to reject withdrawal requests if there is reasonable suspicion of fraudulent activity. MuMu is not responsible for delays caused by PayPal or other payment processors.</p>
+            <p>You may request a cash withdrawal of your account balance via PayPal, subject to the following conditions: (i) the minimum withdrawal amount is $10 USD; (ii) the maximum withdrawal amount is $500 USD per request; (iii) withdrawals are subject to a 7-day hold from the date of your most recent balance top-up, to protect against payment fraud and chargebacks; (iv) withdrawals are processed within 2–3 business days of approval. Mumu reserves the right to reject withdrawal requests if there is reasonable suspicion of fraudulent activity. Mumu is not responsible for delays caused by PayPal or other payment processors.</p>
           </section>
 
           <section>
@@ -38,12 +38,12 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">6. Buyback Program</h2>
-            <p>MuMu offers a voluntary buyback program where you may sell your items back to MuMu at the fixed buyback price displayed at time of opening. Buyback prices are set by MuMu and may change without notice. Proceeds are credited to your account balance. You may then withdraw that balance per Section 4a or spend it on additional boxes.</p>
+            <p>Mumu offers a voluntary buyback program where you may sell your items back to Mumu at the fixed buyback price displayed at time of opening. Buyback prices are set by Mumu and may change without notice. Proceeds are credited to your account balance. You may then withdraw that balance per Section 4a or spend it on additional boxes.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">7. Shipping</h2>
-            <p>Physical shipping is available for items in your collection. Processing times are 3–7 business days. Shipping fees may apply. MuMu is not responsible for delays caused by carriers. Risk of loss transfers to you upon carrier pickup.</p>
+            <p>Physical shipping is available for items in your collection. Processing times are 3–7 business days. Shipping fees may apply. Mumu is not responsible for delays caused by carriers. Risk of loss transfers to you upon carrier pickup.</p>
           </section>
 
           <section>
@@ -58,7 +58,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-bold text-orange-950 mb-3">10. Limitation of Liability</h2>
-            <p>MuMu's liability is limited to the amount you paid for the current transaction. We are not liable for indirect, incidental, or consequential damages. The Service is provided "as is" without warranties of any kind.</p>
+            <p>Mumu's liability is limited to the amount you paid for the current transaction. We are not liable for indirect, incidental, or consequential damages. The Service is provided "as is" without warranties of any kind.</p>
           </section>
 
           <section>
@@ -73,7 +73,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-orange-200">
-          <a href="/" className="text-orange-600 hover:underline text-sm">← Back to MuMu</a>
+          <a href="/" className="text-orange-600 hover:underline text-sm">← Back to Mumu</a>
         </div>
       </div>
     </div>

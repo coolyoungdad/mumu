@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sparkle, User, SignOut, List, X } from "@phosphor-icons/react/dist/ssr";
 import { createClient } from "@/lib/supabase/client";
 import { onBalanceUpdate } from "@/lib/events/balance";
+import { getDemoBalance } from "@/lib/demo/balance";
 
 export default function Navbar() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function Navbar() {
         fetchBalance(session.user.id);
       } else {
         setUser(null);
-        setBalance(0);
+        setBalance(getDemoBalance());
       }
     });
 
@@ -47,7 +48,7 @@ export default function Navbar() {
       await fetchBalance(user.id);
     } else {
       setUser(null);
-      setBalance(0);
+      setBalance(getDemoBalance());
     }
     setIsLoading(false);
   };
@@ -77,7 +78,7 @@ export default function Navbar() {
             <div className="w-8 h-8 rounded-full bg-orange-600 flex items-center justify-center text-white">
               <Sparkle weight="fill" className="text-xl" />
             </div>
-            <span className="font-bold text-xl tracking-tight">MuMu</span>
+            <span className="font-bold text-xl tracking-tight">Mumu</span>
           </a>
 
           {!isLoading && (
@@ -121,6 +122,12 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
+                  <div className="flex items-center bg-orange-100 rounded-full overflow-hidden">
+                    <span className="pl-3 pr-2 text-sm font-bold text-orange-950">${balance.toFixed(2)}</span>
+                    <span className="bg-orange-200 text-orange-700 px-2 py-1.5 m-0.5 rounded-full font-bold text-[10px]">
+                      DEMO
+                    </span>
+                  </div>
                   <button
                     onClick={() => router.push("/auth/login")}
                     className="text-sm font-medium text-orange-800 hover:text-orange-600 transition-colors"

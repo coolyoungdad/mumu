@@ -1,5 +1,5 @@
 -- Migration 005: Withdrawal Requests
--- Add withdrawal support to MuMu
+-- Add withdrawal support to Mumu
 -- Run AFTER schema-v2.sql and migrations 001-004
 
 -- 1. Add 'withdrawal' to the transaction_type enum

@@ -1,6 +1,6 @@
 # Chat Moderation System
 
-MuMu includes a comprehensive chat moderation system to keep the community safe and friendly.
+Mumu includes a comprehensive chat moderation system to keep the community safe and friendly.
 
 ## Features
 

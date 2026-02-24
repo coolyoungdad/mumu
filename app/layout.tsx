@@ -10,7 +10,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "MuMu - Mystery Box Shopping",
+  title: "Mumu - Mystery Box Shopping",
   description: "The mystery box shopping game. Buy boxes, reveal real products from top brands.",
 };
 

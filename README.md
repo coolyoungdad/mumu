@@ -1,4 +1,4 @@
-# MuMu - Mystery Box E-Commerce Platform
+# Mumu - Mystery Box E-Commerce Platform
 
 A Next.js-based mystery box shopping platform with weighted rarity tiers, atomic inventory management, and Stripe payment integration.
 
@@ -281,5 +281,5 @@ Handles Stripe webhook events (checkout.session.completed, payment intents).
 
 ## License
 
-© 2024 MuMu Inc. All rights reserved.
+© 2024 Mumu Inc. All rights reserved.
 

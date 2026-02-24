@@ -448,7 +448,7 @@ export default function ProductsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-orange-600 uppercase mb-1">
-                    MuMu Buyback Price *
+                    Mumu Buyback Price *
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-400 text-sm">$</span>
